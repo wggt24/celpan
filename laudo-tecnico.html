@@ -583,7 +583,55 @@
     </div>
   </div>
 
+  
   <script>
+/* ======================================
+   CONTROLE DE BLOQUEIO (INTELIGENTE)
+====================================== */
+let bloqueioAtivo = true;
+
+function ativarBloqueio() {
+  bloqueioAtivo = true;
+}
+
+function desativarBloqueio() {
+  bloqueioAtivo = false;
+}
+
+// Botão direito
+document.addEventListener('contextmenu', function (e) {
+  if (bloqueioAtivo) {
+    e.preventDefault();
+    return false;
+  }
+});
+
+// Teclas perigosas
+document.addEventListener('keydown', function (e) {
+  if (!bloqueioAtivo) return;
+
+  // F12
+  if (e.key === 'F12') {
+    e.preventDefault();
+    return false;
+  }
+
+  // Ctrl + Shift + I / J / C
+  if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) {
+    e.preventDefault();
+    return false;
+  }
+
+  // Ctrl + U / S
+  if (e.ctrlKey && ['U', 'S'].includes(e.key.toUpperCase())) {
+    e.preventDefault();
+    return false;
+  }
+});
+
+/* ======================================
+   GERAR LAUDO (FETCH – MESMA LÓGICA)
+====================================== */
 const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbx2pkgn8D7wteKbs7ztzo-BIds9l0OmW0yNZG_slb3yNlUbPVdH0DzH8wJfz9bVcOsq/exec';
 
 document.getElementById('generateBtn').addEventListener('click', async function () {
@@ -613,7 +661,7 @@ document.getElementById('generateBtn').addEventListener('click', async function 
       return;
     }
 
-    // ======= MESMO CÓDIGO QUE VOCÊ JÁ USAVA =======
+    // ===== DADOS (IGUAL AO SEU CÓDIGO) =====
     var data = result.data;
 
     document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
@@ -625,8 +673,7 @@ document.getElementById('generateBtn').addEventListener('click', async function 
     document.getElementById('produto').textContent = data.produto;
     document.getElementById('classe').textContent = data.classe;
 
-    // (equipamentos, resultados, etc — IGUAL AO SEU)
-
+    // ===== EXIBE LAUDO =====
     document.getElementById('popupContainer').style.display = 'none';
     document.getElementById('certificateContainer').style.display = 'block';
 
@@ -637,65 +684,57 @@ document.getElementById('generateBtn').addEventListener('click', async function 
     console.error(err);
   }
 });
+
+/* ======================================
+   VOLTAR CONSULTA (AJUSTADO)
+====================================== */
+function voltarConsulta() {
+  desativarBloqueio();
+
+  document.getElementById('certificateContainer').style.display = 'none';
+  document.getElementById('popupContainer').style.display = 'flex';
+  document.getElementById('laudoNumber').value = '';
+
+  ativarBloqueio();
+}
+
+/* ======================================
+   DOWNLOAD PDF (AJUSTADO)
+====================================== */
+async function downloadPDF() {
+
+  desativarBloqueio();
+
+  const { jsPDF } = window.jspdf;
+  const element = document.querySelector('.certificate-container');
+
+  const controls = document.querySelector('.controls');
+  if (controls) controls.style.display = 'none';
+
+  const canvas = await html2canvas(element, {
+    scale: 3,
+    useCORS: true,
+    backgroundColor: '#ffffff'
+  });
+
+  if (controls) controls.style.display = 'flex';
+
+  const imgData = canvas.toDataURL('image/png');
+  const pdf = new jsPDF('p', 'mm', 'a4');
+
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const imgWidth = pageWidth;
+  const imgHeight = canvas.height * imgWidth / canvas.width;
+
+  pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+
+  const laudoNumber = document.getElementById('numeroLaudo')?.textContent || 'SEM_NUMERO';
+  pdf.save(`Laudo_Tecnico_Celpan_${laudoNumber}.pdf`);
+
+  ativarBloqueio();
+}
 </script>
-<script>
-// ===============================
-// BLOQUEIO GERAL DE AÇÕES
-// ===============================
 
-// Bloquear botão direito
-document.addEventListener('contextmenu', function (e) {
-  e.preventDefault();
-  return false;
-});
-
-// Bloquear seleção de texto
-document.addEventListener('selectstart', function (e) {
-  e.preventDefault();
-  return false;
-});
-
-// Bloquear arrastar
-document.addEventListener('dragstart', function (e) {
-  e.preventDefault();
-  return false;
-});
-
-// Bloquear teclas perigosas
-document.addEventListener('keydown', function (e) {
-
-  // F12
-  if (e.key === 'F12') {
-    e.preventDefault();
-    return false;
-  }
-
-  // Ctrl + Shift + I / J / C
-  if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) {
-    e.preventDefault();
-    return false;
-  }
-
-  // Ctrl + U (ver código-fonte)
-  if (e.ctrlKey && e.key.toUpperCase() === 'U') {
-    e.preventDefault();
-    return false;
-  }
-
-  // Ctrl + S (salvar página)
-  if (e.ctrlKey && e.key.toUpperCase() === 'S') {
-    e.preventDefault();
-    return false;
-  }
-
-  // Ctrl + P (imprimir)
-  if (e.ctrlKey && e.key.toUpperCase() === 'P') {
-    e.preventDefault();
-    return false;
-  }
-
-});
-</script>
 
     
 </body>
