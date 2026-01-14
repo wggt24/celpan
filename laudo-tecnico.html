@@ -763,20 +763,19 @@ function showError(msg) {
 // DOWNLOAD PDF (INALTERADO)
 // ===============================
 function downloadPDF() {
-  const laudo = document.getElementById('numeroLaudo').textContent;
+  const numeroLaudo = document.getElementById('numeroLaudo')?.textContent;
 
-  if (!laudo) {
+  if (!numeroLaudo) {
     alert('Número do laudo não encontrado');
     return;
   }
 
-  // abre o PDF direto do backend
-  window.open(
-    `${API_URL}?action=downloadPdf&numeroLaudo=${encodeURIComponent(laudo)}`,
-    '_blank'
-  );
-}
+  const url =
+    'https://script.google.com/macros/s/AKfycbx2pkgn8D7wteKbs7ztzo-BIds9l0OmW0yNZG_slb3yNlUbPVdH0DzH8wJfz9bVcOsq/exec'
+    + '?numeroLaudo=' + encodeURIComponent(numeroLaudo);
 
+  window.open(url, '_blank');
+}
 </script>
 
 </body>
