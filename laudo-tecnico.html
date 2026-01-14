@@ -18,7 +18,7 @@
     body {
       background-color: #f8f9fa;
       color: #333;
-      line-height: 1.5;
+      line-height: 1.2;
       padding: 0;
       min-height: 100vh;
     }
@@ -27,7 +27,7 @@
       width: 210mm;
       min-height: 297mm;
       margin: 0 auto;
-      padding: 15mm;
+      padding: 8mm;
       background: white;
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
       position: relative;
@@ -50,43 +50,42 @@
 
     .popup {
       background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
       text-align: center;
-      max-width: 450px;
+      max-width: 400px;
       width: 90%;
     }
 
     .popup h2 {
       color: #2c3e50;
-      margin-bottom: 20px;
-      font-size: 24px;
-      border-bottom: 3px solid #a82a1d;
-      padding-bottom: 10px;
+      margin-bottom: 15px;
+      font-size: 20px;
+      border-bottom: 2px solid #a82a1d;
+      padding-bottom: 8px;
       display: inline-block;
     }
 
     .input-group {
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       text-align: left;
     }
 
     .input-group label {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       font-weight: 600;
       color: #2c3e50;
-      font-size: 15px;
+      font-size: 14px;
     }
 
     .input-group input {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       border: 1px solid #cbd5e0;
-      border-radius: 6px;
-      font-size: 15px;
-      transition: border 0.3s;
+      border-radius: 5px;
+      font-size: 14px;
     }
 
     .input-group input:focus {
@@ -98,19 +97,17 @@
       background: linear-gradient(135deg, #a82a1d 0%, #8e2215 100%);
       color: white;
       border: none;
-      padding: 12px 25px;
-      border-radius: 6px;
+      padding: 10px 20px;
+      border-radius: 5px;
       cursor: pointer;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
-      margin: 10px 5px;
+      margin: 8px 4px;
       width: 100%;
-      transition: transform 0.2s, opacity 0.2s;
     }
 
     .btn:hover {
-      transform: translateY(-2px);
-      opacity: 0.95;
+      opacity: 0.9;
     }
 
     .btn-download {
@@ -121,11 +118,11 @@
       background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
     }
 
-    .loading, .error-message, .success-message {
-      margin: 15px 0;
-      padding: 10px;
-      border-radius: 6px;
-      font-size: 14px;
+    .loading, .error-message {
+      margin: 10px 0;
+      padding: 8px;
+      border-radius: 5px;
+      font-size: 13px;
       display: none;
     }
 
@@ -135,12 +132,6 @@
       border: 1px solid #feb2b2;
     }
 
-    .success-message {
-      background: #c6f6d5;
-      color: #2f855a;
-      border: 1px solid #9ae6b4;
-    }
-
     /* Layout do Laudo */
     .certificate-container {
       display: none;
@@ -148,122 +139,116 @@
 
     .certificate-header {
       text-align: center;
-      margin-bottom: 25px;
-      padding-bottom: 15px;
-      border-bottom: 3px solid #a82a1d;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #a82a1d;
     }
 
     .logo-container {
-      margin-bottom: 15px;
-      height: 80px;
+      margin-bottom: 10px;
+      height: 60px;
       display: flex;
       justify-content: center;
       align-items: center;
     }
 
     .logo-container img {
-      max-height: 70px;
+      max-height: 50px;
       width: auto;
     }
 
     .certificate-title {
       color: #2c3e50;
-      font-size: 26px;
-      margin-bottom: 8px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      text-transform: uppercase;
+      font-size: 22px;
+      margin-bottom: 6px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
     }
 
     .certificate-subtitle {
       color: #7f8c8d;
-      font-size: 16px;
-      margin-bottom: 10px;
-      font-weight: 500;
+      font-size: 14px;
+      margin-bottom: 8px;
     }
 
     .certificate-number {
       color: #a82a1d;
-      font-size: 15px;
-      font-weight: 700;
+      font-size: 13px;
+      font-weight: 600;
       background-color: #f8f9fa;
-      padding: 8px 15px;
-      border-radius: 20px;
+      padding: 6px 12px;
+      border-radius: 15px;
       display: inline-block;
-      margin-top: 10px;
+      margin-top: 8px;
       border: 1px solid #e0e0e0;
     }
 
     .section-title {
-      background: linear-gradient(135deg, #a82a1d 0%, #8e2215 100%);
+      background: #a82a1d;
       color: white;
-      padding: 10px 15px;
-      margin: 20px 0 15px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 700;
+      padding: 8px 12px;
+      margin: 12px 0 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
 
     .info-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      margin-bottom: 20px;
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
     .info-card {
       background: #ffffff;
-      padding: 12px;
-      border-radius: 6px;
-      border-left: 4px solid #a82a1d;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      padding: 8px;
+      border-radius: 4px;
+      border-left: 3px solid #a82a1d;
     }
 
     .info-item {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 10px;
-      padding-bottom: 8px;
+      margin-bottom: 6px;
+      padding-bottom: 4px;
       border-bottom: 1px solid #f0f0f0;
+      font-size: 11px;
     }
 
     .info-label {
-      font-weight: 700;
+      font-weight: 600;
       color: #2c3e50;
-      font-size: 13px;
       white-space: nowrap;
     }
 
     .info-value {
       color: #333;
       text-align: right;
-      font-size: 13px;
-      font-weight: 600;
+      font-weight: 500;
     }
 
     /* Tabelas */
     .equipment-table, .data-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 12px;
-      margin-bottom: 20px;
+      font-size: 10px;
+      margin-bottom: 12px;
     }
 
     .equipment-table th, .equipment-table td,
     .data-table th, .data-table td {
-      padding: 10px 8px;
+      padding: 6px 4px;
       text-align: center;
       border: 1px solid #e0e0e0;
     }
 
     .equipment-table th, .data-table th {
-      background: linear-gradient(135deg, #a82a1d 0%, #8e2215 100%);
+      background: #a82a1d;
       color: white;
-      font-weight: 700;
-      font-size: 12px;
-      padding: 12px 8px;
+      font-weight: 600;
+      padding: 6px 4px;
     }
 
     .equipment-table tr:nth-child(even),
@@ -276,7 +261,7 @@
     .data-table td:first-child,
     .data-table th:first-child {
       text-align: left;
-      padding-left: 10px;
+      padding-left: 6px;
     }
 
     .equipment-table td:last-child,
@@ -284,35 +269,17 @@
     .data-table td:last-child,
     .data-table th:last-child {
       text-align: right;
-      padding-right: 10px;
-    }
-
-    .equipment-table th:nth-child(1) { width: 30%; }
-    .equipment-table th:nth-child(2) { width: 20%; }
-    .equipment-table th:nth-child(3) { width: 30%; }
-    .equipment-table th:nth-child(4) { width: 20%; }
-
-    .status-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 11px;
-    }
-
-    .status-ap {
-      background-color: #e8f5e9;
-      color: #2e7d32;
+      padding-right: 6px;
     }
 
     /* Legenda e normas */
     .legenda-normas {
       text-align: center;
-      margin: 25px 0;
-      padding: 15px;
+      margin: 15px 0;
+      padding: 10px;
       background: #f8f9fa;
-      border-radius: 6px;
-      font-size: 12px;
+      border-radius: 4px;
+      font-size: 10px;
       border: 1px solid #e0e0e0;
     }
 
@@ -320,62 +287,60 @@
     .signatures-section {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 25px;
-      margin: 30px 0;
+      gap: 15px;
+      margin: 20px 0;
     }
 
     .signature-box {
       text-align: center;
-      padding: 20px;
+      padding: 12px;
       border: 1px solid #e0e0e0;
-      border-radius: 6px;
+      border-radius: 4px;
       background: white;
     }
 
     .signature-box img {
-      max-width: 180px;
+      max-width: 150px;
       height: auto;
-      margin-bottom: 10px;
-      padding-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .signature-name {
-      font-weight: 800;
+      font-weight: 700;
       color: #2c3e50;
-      margin-bottom: 6px;
-      font-size: 14px;
+      margin-bottom: 4px;
+      font-size: 12px;
     }
 
     .signature-title {
       color: #7f8c8d;
-      margin-bottom: 4px;
-      font-size: 12px;
-      font-weight: 500;
+      margin-bottom: 3px;
+      font-size: 10px;
     }
 
     .signature-id {
       color: #a82a1d;
-      font-size: 11px;
-      font-weight: 700;
+      font-size: 9px;
+      font-weight: 600;
     }
 
     /* Rodapé */
     .footer {
       text-align: center;
-      margin-top: 30px;
-      padding-top: 15px;
-      border-top: 2px solid #e0e0e0;
+      margin-top: 15px;
+      padding-top: 10px;
+      border-top: 1px solid #e0e0e0;
       color: #7f8c8d;
-      font-size: 12px;
-      line-height: 1.4;
+      font-size: 10px;
+      line-height: 1.3;
     }
 
     /* Controles */
     .controls {
       display: flex;
       justify-content: center;
-      gap: 15px;
-      margin-top: 25px;
+      gap: 10px;
+      margin-top: 15px;
     }
 
     /* Estilo para impressão */
@@ -404,23 +369,10 @@
 
       .container {
         box-shadow: none;
-        padding: 10mm;
+        padding: 5mm;
         margin: 0;
         width: 210mm;
         min-height: 297mm;
-      }
-
-      .section-title {
-        break-inside: avoid;
-      }
-
-      .equipment-table,
-      .data-table {
-        font-size: 8pt;
-      }
-
-      .info-item {
-        break-inside: avoid;
       }
     }
   </style>
@@ -436,10 +388,7 @@
           <input type="text" id="laudoNumber" placeholder="Digite o número do laudo" autocomplete="off">
         </div>
         <div class="error-message" id="errorMessage"></div>
-        <div class="success-message" id="successMessage"></div>
-        <div class="loading" id="loading">
-          <p>Buscando dados...</p>
-        </div>
+        <div class="loading" id="loading">Buscando dados...</div>
         <button class="btn" id="generateBtn">Gerar Laudo</button>
       </div>
     </div>
@@ -451,17 +400,12 @@
           <img id="companyLogo" src="https://www.celpan.com.br/wp-content/uploads/2021/12/logo.png" alt="Logo Celpan">
         </div>
         <h1 class="certificate-title">Laudo Técnico</h1>
-       
-
-      <div class="certificate-subtitle">EPI / EPC: <span id="productName"></span>
+        <div class="certificate-subtitle">EPI / EPC: <span id="productName"></span></div>
+        <div class="certificate-number">NÚM: <span id="numeroLaudo"></span></div>
       </div>
-        <div class="certificate-number" style="display: none;">
-      NÚM: <span id="numeroLaudo"></span>
-       </div>
-
 
       <!-- Informações do ensaio -->
-      <div class="section-title">Informações do Ensaio</div>
+      <div class="section-title">INFORMAÇÕES DO ENSAIO</div>
       <div class="info-grid">
         <div class="info-card">
           <div class="info-item">
@@ -490,25 +434,21 @@
       </div>
 
       <!-- Equipamentos utilizados -->
-      <div class="section-title">Equipamentos Utilizados</div>
-      <div class="equipment-section">
-        <table class="equipment-table">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Código</th>
-              <th>Certif. Calibração</th>
-              <th>Validade</th>
-            </tr>
-          </thead>
-          <tbody id="equipmentTableBody">
-            <!-- Dinâmico -->
-          </tbody>
-        </table>
-      </div>
+      <div class="section-title">EQUIPAMENTOS UTILIZADOS</div>
+      <table class="equipment-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Código</th>
+            <th>Certif. Calibração</th>
+            <th>Validade</th>
+          </tr>
+        </thead>
+        <tbody id="equipmentTableBody"></tbody>
+      </table>
 
       <!-- Condições do ensaio -->
-      <div class="section-title">Condições do Ensaio</div>
+      <div class="section-title">CONDICÕES DO ENSAIO</div>
       <div class="info-grid">
         <div class="info-card" style="grid-column: 1 / -1;">
           <div class="info-item">
@@ -527,26 +467,16 @@
       </div>
 
       <!-- Resultados dos ensaios -->
-      <div class="section-title">Resultados dos Ensaios</div>
-      <div class="data-table-container">
-        <table class="data-table">
-          <thead id="dataTableHeader">
-            <!-- Dinâmico -->
-          </thead>
-          <tbody id="dataTableBody">
-            <!-- Dinâmico -->
-          </tbody>
-        </table>
-      </div>
+      <div class="section-title">RESULTADOS DOS ENSAIOS</div>
+      <table class="data-table">
+        <thead id="dataTableHeader"></thead>
+        <tbody id="dataTableBody"></tbody>
+      </table>
 
       <!-- Legenda e normas -->
       <div class="legenda-normas">
-        <div style="margin-bottom: 6px;">
-          <strong>Legenda:</strong> AP = Aprovado | NST = Não Suportou Tensão | RV = Reprovado Visual | FD = Fora do Dimensional
-        </div>
-        <div>
-          <strong>Normas Referenciadas:</strong> NR-10 / ASTM D-1048-14 / ASTM D178-19 / ASTM F479-06 / NBR-14039/2005
-        </div>
+        <div><strong>Legenda:</strong> AP = Aprovado | NST = Não Suportou Tensão | RV = Reprovado Visual | FD = Fora do Dimensional</div>
+        <div><strong>Normas Referenciadas:</strong> NR-10 / ASTM D-1048-14 / ASTM D178-19 / ASTM F479-06 / NBR-14039/2005</div>
       </div>
 
       <!-- Assinaturas -->
@@ -582,160 +512,148 @@
     </div>
   </div>
 
-  
- <script>
-/* ======================================
-   CONTROLE DE BLOQUEIO (INTELIGENTE)
-====================================== */
-let bloqueioAtivo = true;
+  <script>
+    /* ======================================
+       CONTROLE DE BLOQUEIO (INTELIGENTE)
+    ====================================== */
+    let bloqueioAtivo = true;
 
-function ativarBloqueio() {
-  bloqueioAtivo = true;
-}
-
-function desativarBloqueio() {
-  bloqueioAtivo = false;
-}
-
-// Botão direito
-document.addEventListener('contextmenu', function (e) {
-  if (bloqueioAtivo) {
-    e.preventDefault();
-    return false;
-  }
-});
-
-// Teclas perigosas
-document.addEventListener('keydown', function (e) {
-  if (!bloqueioAtivo) return;
-
-  // F12
-  if (e.key === 'F12') {
-    e.preventDefault();
-    return false;
-  }
-
-  // Ctrl + Shift + I / J / C
-  if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) {
-    e.preventDefault();
-    return false;
-  }
-
-  // Ctrl + U / S
-  if (e.ctrlKey && ['U', 'S'].includes(e.key.toUpperCase())) {
-    e.preventDefault();
-    return false;
-  }
-});
-
-/* ======================================
-   GERAR LAUDO (FETCH – MESMA LÓGICA)
-====================================== */
-const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbx2pkgn8D7wteKbs7ztzo-BIds9l0OmW0yNZG_slb3yNlUbPVdH0DzH8wJfz9bVcOsq/exec';
-
-document.getElementById('generateBtn').addEventListener('click', async function () {
-
-  var numeroLaudo = document.getElementById('laudoNumber').value.trim();
-
-  if (!numeroLaudo) {
-    document.getElementById('errorMessage').textContent = 'Digite o número do laudo.';
-    document.getElementById('errorMessage').style.display = 'block';
-    return;
-  }
-
-  document.getElementById('loading').style.display = 'block';
-  document.getElementById('errorMessage').style.display = 'none';
-
-  try {
-    const response = await fetch(
-      WEBAPP_URL + '?laudo=' + encodeURIComponent(numeroLaudo)
-    );
-
-    const result = await response.json();
-    document.getElementById('loading').style.display = 'none';
-
-    if (!result.success) {
-      document.getElementById('errorMessage').textContent = result.message;
-      document.getElementById('errorMessage').style.display = 'block';
-      return;
+    function ativarBloqueio() {
+      bloqueioAtivo = true;
     }
 
-    // ===== DADOS (IGUAL AO SEU CÓDIGO) =====
-    var data = result.data;
+    function desativarBloqueio() {
+      bloqueioAtivo = false;
+    }
 
-    document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
-    document.getElementById('productName').textContent = data.produto;
+    // Botão direito
+    document.addEventListener('contextmenu', function(e) {
+      if (bloqueioAtivo) {
+        e.preventDefault();
+        return false;
+      }
+    });
 
-    document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
-    document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
-    document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
-    document.getElementById('produto').textContent = data.produto;
-    document.getElementById('classe').textContent = data.classe;
+    // Teclas perigosas
+    document.addEventListener('keydown', function(e) {
+      if (!bloqueioAtivo) return;
 
-    // ===== EXIBE LAUDO =====
-    document.getElementById('popupContainer').style.display = 'none';
-    document.getElementById('certificateContainer').style.display = 'block';
+      if (e.key === 'F12') {
+        e.preventDefault();
+        return false;
+      }
 
-  } catch (err) {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('errorMessage').textContent = 'Erro ao buscar dados';
-    document.getElementById('errorMessage').style.display = 'block';
-    console.error(err);
-  }
-});
+      if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) {
+        e.preventDefault();
+        return false;
+      }
 
-/* ======================================
-   VOLTAR CONSULTA (AJUSTADO)
-====================================== */
-function voltarConsulta() {
-  desativarBloqueio();
+      if (e.ctrlKey && ['U', 'S'].includes(e.key.toUpperCase())) {
+        e.preventDefault();
+        return false;
+      }
+    });
 
-  document.getElementById('certificateContainer').style.display = 'none';
-  document.getElementById('popupContainer').style.display = 'flex';
-  document.getElementById('laudoNumber').value = '';
+    /* ======================================
+       GERAR LAUDO (FETCH)
+    ====================================== */
+    const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbx2pkgn8D7wteKbs7ztzo-BIds9l0OmW0yNZG_slb3yNlUbPVdH0DzH8wJfz9bVcOsq/exec';
 
-  ativarBloqueio();
-}
+    document.getElementById('generateBtn').addEventListener('click', async function() {
+      var numeroLaudo = document.getElementById('laudoNumber').value.trim();
 
-/* ======================================
-   DOWNLOAD PDF (AJUSTADO)
-====================================== */
-async function downloadPDF() {
+      if (!numeroLaudo) {
+        document.getElementById('errorMessage').textContent = 'Digite o número do laudo.';
+        document.getElementById('errorMessage').style.display = 'block';
+        return;
+      }
 
-  desativarBloqueio();
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('errorMessage').style.display = 'none';
 
-  const { jsPDF } = window.jspdf;
-  const element = document.querySelector('.certificate-container');
+      try {
+        const response = await fetch(WEBAPP_URL + '?laudo=' + encodeURIComponent(numeroLaudo));
+        const result = await response.json();
+        document.getElementById('loading').style.display = 'none';
 
-  const controls = document.querySelector('.controls');
-  if (controls) controls.style.display = 'none';
+        if (!result.success) {
+          document.getElementById('errorMessage').textContent = result.message;
+          document.getElementById('errorMessage').style.display = 'block';
+          return;
+        }
 
-  const canvas = await html2canvas(element, {
-    scale: 3,
-    useCORS: true,
-    backgroundColor: '#ffffff'
-  });
+        var data = result.data;
 
-  if (controls) controls.style.display = 'flex';
+        document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
+        document.getElementById('productName').textContent = data.produto;
+        document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
+        document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
+        document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
+        document.getElementById('produto').textContent = data.produto;
+        document.getElementById('classe').textContent = data.classe;
 
-  const imgData = canvas.toDataURL('image/png');
-  const pdf = new jsPDF('p', 'mm', 'a4');
+        document.getElementById('popupContainer').style.display = 'none';
+        document.getElementById('certificateContainer').style.display = 'block';
 
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const imgWidth = pageWidth;
-  const imgHeight = canvas.height * imgWidth / canvas.width;
+      } catch (err) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('errorMessage').textContent = 'Erro ao buscar dados';
+        document.getElementById('errorMessage').style.display = 'block';
+        console.error(err);
+      }
+    });
 
-  pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+    /* ======================================
+       VOLTAR CONSULTA
+    ====================================== */
+    function voltarConsulta() {
+      desativarBloqueio();
+      document.getElementById('certificateContainer').style.display = 'none';
+      document.getElementById('popupContainer').style.display = 'flex';
+      document.getElementById('laudoNumber').value = '';
+      ativarBloqueio();
+    }
 
-  const laudoNumber = document.getElementById('numeroLaudo')?.textContent || 'SEM_NUMERO';
-  pdf.save(`Laudo_Tecnico_Celpan_${laudoNumber}.pdf`);
+    /* ======================================
+       DOWNLOAD PDF (AJUSTADO PARA A4)
+    ====================================== */
+    async function downloadPDF() {
+      desativarBloqueio();
 
-  ativarBloqueio();
-}
-</script>
+      const { jsPDF } = window.jspdf;
+      const element = document.querySelector('.certificate-container');
+      const controls = document.querySelector('.controls');
 
+      if (controls) controls.style.display = 'none';
 
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        letterRendering: true,
+      });
 
-    
+      if (controls) controls.style.display = 'flex';
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const margin = 5;
+      const pageWidth = pdf.internal.pageSize.getWidth() - (margin * 2);
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      // Se a altura da imagem for maior que a página, divide em páginas
+      let position = margin;
+      const pageHeight = pdf.internal.pageSize.getHeight() - (margin * 2);
+
+      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+
+      const laudoNumber = document.getElementById('numeroLaudo')?.textContent || 'SEM_NUMERO';
+      pdf.save(`Laudo_Tecnico_Celpan_${laudoNumber}.pdf`);
+
+      ativarBloqueio();
+    }
+  </script>
 </body>
 </html>
