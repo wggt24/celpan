@@ -759,18 +759,6 @@ function showError(msg) {
   document.getElementById('errorMessage').style.display = 'block';
 }
 
-// ===============================
-// DOWNLOAD PDF (INALTERADO)
-// ===============================
-function downloadPDF() {
-  const numeroLaudo = document.getElementById('numeroLaudo').textContent;
-
-  const url = 'https://script.google.com/macros/s/AKfycbx2pkgn8D7wteKbs7ztzo-BIds9l0OmW0yNZG_slb3yNlUbPVdH0DzH8wJfz9bVcOsq/exec'
-    + '?numeroLaudo=' + encodeURIComponent(numeroLaudo);
-
-  window.open(url, '_blank');
-}
-
 </script>
 
 </body>
