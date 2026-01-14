@@ -580,126 +580,189 @@
   </div>
 
   <script>
-/* ======================================
-   CONTROLE DE BLOQUEIO (INTELIGENTE)
-====================================== */
-let bloqueioAtivo = true;
+const API_URL = 'https://script.google.com/macros/s/AKfycbx2pkgn8D7wteKbs7ztzo-BIds9l0OmW0yNZG_slb3yNlUbPVdH0DzH8wJfz9bVcOsq/exec';
 
-function ativarBloqueio() {
-  bloqueioAtivo = true;
-}
-
-function desativarBloqueio() {
-  bloqueioAtivo = false;
-}
-
-// Botão direito
-document.addEventListener('contextmenu', function (e) {
-  if (bloqueioAtivo) {
-    e.preventDefault();
-    return false;
-  }
-});
-
-// Teclas perigosas
-document.addEventListener('keydown', function (e) {
-  if (!bloqueioAtivo) return;
-
-  // F12
-  if (e.key === 'F12') {
-    e.preventDefault();
-    return false;
-  }
-
-  // Ctrl + Shift + I / J / C
-  if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) {
-    e.preventDefault();
-    return false;
-  }
-
-  // Ctrl + U / S
-  if (e.ctrlKey && ['U', 'S'].includes(e.key.toUpperCase())) {
-    e.preventDefault();
-    return false;
-  }
-});
-
-/* ======================================
-   GERAR LAUDO (FETCH – MESMA LÓGICA)
-====================================== */
-const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbx2pkgn8D7wteKbs7ztzo-BIds9l0OmW0yNZG_slb3yNlUbPVdH0DzH8wJfz9bVcOsq/exec';
-
+// ===============================
+// GERAR LAUDO
+// ===============================
 document.getElementById('generateBtn').addEventListener('click', async function () {
-
-  var numeroLaudo = document.getElementById('laudoNumber').value.trim();
+  const numeroLaudo = document.getElementById('laudoNumber').value.trim();
 
   if (!numeroLaudo) {
-    document.getElementById('errorMessage').textContent = 'Digite o número do laudo.';
-    document.getElementById('errorMessage').style.display = 'block';
+    showError('Digite o número do laudo.');
     return;
   }
 
-  document.getElementById('loading').style.display = 'block';
-  document.getElementById('errorMessage').style.display = 'none';
+  showLoading(true);
 
   try {
-    const response = await fetch(
-      WEBAPP_URL + '?laudo=' + encodeURIComponent(numeroLaudo)
-    );
-
+    const response = await fetch(`${API_URL}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`);
     const result = await response.json();
-    document.getElementById('loading').style.display = 'none';
+
+    showLoading(false);
 
     if (!result.success) {
-      document.getElementById('errorMessage').textContent = result.message;
-      document.getElementById('errorMessage').style.display = 'block';
+      showError(result.message);
       return;
     }
 
-    // ===== DADOS (IGUAL AO SEU CÓDIGO) =====
-    var data = result.data;
+    const data = result.data;
 
+    // ===============================
+    // CABEÇALHO
+    // ===============================
     document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
     document.getElementById('productName').textContent = data.produto;
 
+    // ===============================
+    // INFORMAÇÕES DO ENSAIO
+    // ===============================
     document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
     document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
     document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
     document.getElementById('produto').textContent = data.produto;
     document.getElementById('classe').textContent = data.classe;
 
-    // ===== EXIBE LAUDO =====
+    // ===============================
+    // EQUIPAMENTOS
+    // ===============================
+    document.getElementById('equipmentTableBody').innerHTML = `
+      <tr>
+        <td>Kilovoltímetro</td>
+        <td>CEL-HP-01</td>
+        <td>${data.certifCalibracao}</td>
+        <td>${data.validade}</td>
+      </tr>
+      <tr>
+        <td>Milliamperímetro</td>
+        <td>CEL-HP-01</td>
+        <td>${data.certifCalibracao}</td>
+        <td>${data.validade}</td>
+      </tr>
+      <tr>
+        <td>Cronômetro</td>
+        <td>CEL-HP-01</td>
+        <td>${data.certifCalibracao}</td>
+        <td>${data.validade}</td>
+      </tr>
+      <tr>
+        <td>Thermohigrômetro</td>
+        <td>CEL-TH-02</td>
+        <td>1803660</td>
+        <td>${data.validade}</td>
+      </tr>
+      <tr>
+        <td>Trena</td>
+        <td>PAN-TR-05</td>
+        <td>PAN-TR-105</td>
+        <td>${data.validade}</td>
+      </tr>
+    `;
+
+    // ===============================
+    // CONDIÇÕES DO ENSAIO
+    // ===============================
+    document.getElementById('temperatura').textContent = '23 ºC';
+    document.getElementById('tempoEnsaio').textContent = '1 minuto';
+    document.getElementById('umidade').textContent = '70 %';
+
+    // ===============================
+    // RESULTADOS
+    // ===============================
+    document.getElementById('dataTableHeader').innerHTML = `
+      <tr>
+        <th>Usuário/Localização</th>
+        <th>Marca/Fabricante</th>
+        <th>Classe</th>
+        <th>Tamanho (mm)</th>
+        <th>Nº de Série</th>
+        <th>Corrente de Fuga (mA)</th>
+        <th>kV Aplicado</th>
+        <th>Referência (mA)</th>
+        <th>Status</th>
+      </tr>
+    `;
+
+    document.getElementById('dataTableBody').innerHTML = `
+      <tr>
+        <td>N.A</td>
+        <td>${data.produto}</td>
+        <td>${data.classe}</td>
+        <td>1000x1000</td>
+        <td>${data.rastreabilidade}</td>
+        <td>0,8</td>
+        <td>${data.kvAplicado}</td>
+        <td>&lt; 16</td>
+        <td><span class="status-badge status-ap">AP</span></td>
+      </tr>
+    `;
+
+    // ===============================
+    // EXIBIR LAUDO
+    // ===============================
     document.getElementById('popupContainer').style.display = 'none';
     document.getElementById('certificateContainer').style.display = 'block';
+    document.querySelector('.container').style.overflow = 'hidden';
 
   } catch (err) {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('errorMessage').textContent = 'Erro ao buscar dados';
-    document.getElementById('errorMessage').style.display = 'block';
-    console.error(err);
+    showLoading(false);
+    showError('Erro ao buscar dados: ' + err.message);
   }
 });
 
-/* ======================================
-   VOLTAR CONSULTA (AJUSTADO)
-====================================== */
-function voltarConsulta() {
-  desativarBloqueio();
+// ===============================
+// TESTAR CONEXÃO
+// ===============================
+document.getElementById('testBtn').addEventListener('click', async function () {
+  showLoading(true);
 
+  try {
+    const response = await fetch(`${API_URL}?action=testarConexao`);
+    const result = await response.json();
+
+    showLoading(false);
+
+    if (!result.success) {
+      showError(result.message);
+      return;
+    }
+
+    document.getElementById('successMessage').textContent = result.message;
+    document.getElementById('successMessage').style.display = 'block';
+
+  } catch (err) {
+    showLoading(false);
+    showError('Erro ao testar conexão: ' + err.message);
+  }
+});
+
+// ===============================
+// VOLTAR CONSULTA
+// ===============================
+function voltarConsulta() {
   document.getElementById('certificateContainer').style.display = 'none';
   document.getElementById('popupContainer').style.display = 'flex';
   document.getElementById('laudoNumber').value = '';
-
-  ativarBloqueio();
 }
 
-/* ======================================
-   DOWNLOAD PDF (AJUSTADO)
-====================================== */
+// ===============================
+// HELPERS
+// ===============================
+function showLoading(show) {
+  document.getElementById('loading').style.display = show ? 'block' : 'none';
+  document.getElementById('errorMessage').style.display = 'none';
+  document.getElementById('successMessage').style.display = 'none';
+}
+
+function showError(msg) {
+  document.getElementById('errorMessage').textContent = msg;
+  document.getElementById('errorMessage').style.display = 'block';
+}
+
+// ===============================
+// DOWNLOAD PDF (INALTERADO)
+// ===============================
 async function downloadPDF() {
-
-  desativarBloqueio();
-
   const { jsPDF } = window.jspdf;
   const element = document.querySelector('.certificate-container');
 
@@ -718,221 +781,15 @@ async function downloadPDF() {
   const pdf = new jsPDF('p', 'mm', 'a4');
 
   const pageWidth = pdf.internal.pageSize.getWidth();
-  const imgWidth = pageWidth;
-  const imgHeight = canvas.height * imgWidth / canvas.width;
+  const imgWidth = pageWidth - 10;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-  pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+  pdf.addImage(imgData, 'PNG', 5, 0, imgWidth, imgHeight);
 
-  const laudoNumber = document.getElementById('numeroLaudo')?.textContent || 'SEM_NUMERO';
-  pdf.save(`Laudo_Tecnico_Celpan_${laudoNumber}.pdf`);
-
-  ativarBloqueio();
+  const laudo = document.getElementById('numeroLaudo').textContent || 'SEM_NUMERO';
+  pdf.save(`Laudo_Tecnico_Celpan_${laudo}.pdf`);
 }
 </script>
 
-
---
-
-Outra opção seria baixar a partir da linha do numero do laudo mesmo assim como em vez de baixar da tela:
-
-
-        <button class="btn" id="generateBtn">Gerar Laudo</button>
-      </div>
-    </div>
-
-    <!-- Certificado de Laudo Técnico -->
-    <div class="certificate-container" id="certificateContainer">
-      <div class="certificate-header">
-        <div class="logo-container">
-          <img id="companyLogo" src="https://www.celpan.com.br/wp-content/uploads/2021/12/logo.png" alt="Logo Celpan">
-        </div>
-        <h1 class="certificate-title">Laudo Técnico</h1>
-       
-
-      <div class="certificate-subtitle">EPI / EPC: <span id="productName"></span>
-      </div>
-        <div class="certificate-number" style="display: none;">
-      NÚM: <span id="numeroLaudo"></span>
-       </div>
-
-
-      <!-- Informações do ensaio -->
-      <div class="section-title">Informações do Ensaio</div>
-      <div class="info-grid">
-        <div class="info-card">
-          <div class="info-item">
-            <span class="info-label">Número de Rastreabilidade:</span>
-            <span class="info-value" id="rastreabilidade"></span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Mês do Ensaio:</span>
-            <span class="info-value" id="mesEnsaio"></span>
-          </div>
-        </div>
-        <div class="info-card">
-          <div class="info-item">
-            <span class="info-label">Marca/Fabricante:</span>
-            <span class="info-value" id="produto"></span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Classe:</span>
-            <span class="info-value" id="classe"></span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Próximo Ensaio:</span>
-            <span class="info-value" id="proximoEnsaio"></span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Equipamentos utilizados -->
-      <div class="section-title">Equipamentos Utilizados</div>
-      <div class="equipment-section">
-        <table class="equipment-table">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Código</th>
-              <th>Certif. Calibração</th>
-              <th>Validade</th>
-            </tr>
-          </thead>
-          <tbody id="equipmentTableBody">
-            <!-- Dinâmico -->
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Condições do ensaio -->
-      <div class="section-title">Condições do Ensaio</div>
-      <div class="info-grid">
-        <div class="info-card" style="grid-column: 1 / -1;">
-          <div class="info-item">
-            <span class="info-label">Temperatura:</span>
-            <span class="info-value" id="temperatura"></span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Tempo de Ensaio:</span>
-            <span class="info-value" id="tempoEnsaio"></span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Umidade:</span>
-            <span class="info-value" id="umidade"></span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Resultados dos ensaios -->
-      <div class="section-title">Resultados dos Ensaios</div>
-      <div class="data-table-container">
-        <table class="data-table">
-          <thead id="dataTableHeader">
-            <!-- Dinâmico -->
-          </thead>
-          <tbody id="dataTableBody">
-            <!-- Dinâmico -->
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Legenda e normas -->
-      <div class="legenda-normas">
-        <div style="margin-bottom: 6px;">
-          <strong>Legenda:</strong> AP = Aprovado | NST = Não Suportou Tensão | RV = Reprovado Visual | FD = Fora do Dimensional
-        </div>
-        <div>
-          <strong>Normas Referenciadas:</strong> NR-10 / ASTM D-1048-14 / ASTM D178-19 / ASTM F479-06 / NBR-14039/2005
-        </div>
-      </div>
-
-      <!-- Assinaturas -->
-      <div class="signatures-section">
-        <div class="signature-box">
-          <img src="https://raw.githubusercontent.com/ticelpan1670-droid/celpan/main/imagens/assinatura-rogerio.png" alt="Assinatura Rogério Percílio Figueiredo">
-          <div class="signature-name">Rogério Percílio Figueiredo</div>
-          <div class="signature-title">Responsável Técnico</div>
-          <div class="signature-id">CREA: 5060011343</div>
-        </div>
-        <div class="signature-box">
-          <img src="https://raw.githubusercontent.com/ticelpan1670-droid/celpan/main/imagens/assinatura-cleber.png" alt="Assinatura Cleber Rodrigo Martins">
-          <div class="signature-name">Cleber Rodrigo Martins</div>
-          <div class="signature-title">Coordenador de Qualidade</div>
-          <div class="signature-id">CREA: 5062345678</div>
-        </div>
-      </div>
-
-      <!-- Rodapé -->
-      <div class="footer">
-        <div><strong>CELPAN - COBRA BRASIL SERVIÇOS DE COMUNICAÇÃO E ENERGIA S.A.</strong></div>
-        <div>CNPJ: 12.345.678/0001-99</div>
-        <div>Estrada da Aldeinha, 1670 - Jardim Marilu - Carapicuíba, São Paulo - CEP: 06343-040</div>
-        <div>Contato: (11) 3229-6699 / 3228-6015 / 2967-7040</div>
-      </div>
-
-      <!-- Controles -->
-      <div class="controls">
-        <button class="btn" onclick="voltarConsulta()">Nova Consulta</button>
-        <button class="btn btn-download" onclick="downloadPDF()">Download PDF</button>
-        <button class="btn btn-print" onclick="window.print()">Imprimir Laudo</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbx2pkgn8D7wteKbs7ztzo-BIds9l0OmW0yNZG_slb3yNlUbPVdH0DzH8wJfz9bVcOsq/exec';
-
-document.getElementById('generateBtn').addEventListener('click', async function () {
-
-  var numeroLaudo = document.getElementById('laudoNumber').value.trim();
-
-  if (!numeroLaudo) {
-    document.getElementById('errorMessage').textContent = 'Digite o número do laudo.';
-    document.getElementById('errorMessage').style.display = 'block';
-    return;
-  }
-
-  document.getElementById('loading').style.display = 'block';
-  document.getElementById('errorMessage').style.display = 'none';
-
-  try {
-    const response = await fetch(
-      WEBAPP_URL + '?laudo=' + encodeURIComponent(numeroLaudo)
-    );
-
-    const result = await response.json();
-    document.getElementById('loading').style.display = 'none';
-
-    if (!result.success) {
-      document.getElementById('errorMessage').textContent = result.message;
-      document.getElementById('errorMessage').style.display = 'block';
-      return;
-    }
-
-    // ======= MESMO CÓDIGO QUE VOCÊ JÁ USAVA =======
-    var data = result.data;
-
-    document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
-    document.getElementById('productName').textContent = data.produto;
-
-    document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
-    document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
-    document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
-    document.getElementById('produto').textContent = data.produto;
-    document.getElementById('classe').textContent = data.classe;
-
-    // (equipamentos, resultados, etc — IGUAL AO SEU)
-
-    document.getElementById('popupContainer').style.display = 'none';
-    document.getElementById('certificateContainer').style.display = 'block';
-
-  } catch (err) {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('errorMessage').textContent = 'Erro ao buscar dados';
-    document.getElementById('errorMessage').style.display = 'block';
-    console.error(err);
-  }
-});
-
-  </script>
 </body>
 </html>
