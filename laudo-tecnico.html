@@ -316,6 +316,7 @@
       color: #7f8c8d;
       margin-bottom: 3px;
       font-size: 10px;
+      font-weight: 500;
     }
 
     .signature-id {
@@ -444,7 +445,9 @@
             <th>Validade</th>
           </tr>
         </thead>
-        <tbody id="equipmentTableBody"></tbody>
+        <tbody id="equipmentTableBody">
+          <!-- Preenchido dinamicamente -->
+        </tbody>
       </table>
 
       <!-- Condições do ensaio -->
@@ -469,8 +472,12 @@
       <!-- Resultados dos ensaios -->
       <div class="section-title">RESULTADOS DOS ENSAIOS</div>
       <table class="data-table">
-        <thead id="dataTableHeader"></thead>
-        <tbody id="dataTableBody"></tbody>
+        <thead id="dataTableHeader">
+          <!-- Preenchido dinamicamente -->
+        </thead>
+        <tbody id="dataTableBody">
+          <!-- Preenchido dinamicamente -->
+        </tbody>
       </table>
 
       <!-- Legenda e normas -->
@@ -584,6 +591,7 @@
 
         var data = result.data;
 
+        // Preenche os dados básicos
         document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
         document.getElementById('productName').textContent = data.produto;
         document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
@@ -591,6 +599,75 @@
         document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
         document.getElementById('produto').textContent = data.produto;
         document.getElementById('classe').textContent = data.classe;
+
+        // Preenche os equipamentos utilizados
+        const equipmentTableBody = document.getElementById('equipmentTableBody');
+        equipmentTableBody.innerHTML = '';
+
+        // Exemplo de preenchimento de equipamentos (ajuste conforme os dados reais)
+        if (data.equipamentos && data.equipamentos.length > 0) {
+          data.equipamentos.forEach(equipamento => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${equipamento.nome || ''}</td>
+              <td>${equipamento.codigo || ''}</td>
+              <td>${equipamento.certificado || ''}</td>
+              <td>${equipamento.validade || ''}</td>
+            `;
+            equipmentTableBody.appendChild(row);
+          });
+        } else {
+          // Se não houver equipamentos, exibe uma linha vazia
+          equipmentTableBody.innerHTML = `
+            <tr>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          `;
+        }
+
+        // Preenche as condições do ensaio
+        document.getElementById('temperatura').textContent = data.temperatura || '';
+        document.getElementById('tempoEnsaio').textContent = data.tempoEnsaio || '';
+        document.getElementById('umidade').textContent = data.umidade || '';
+
+        // Preenche os resultados dos ensaios
+        const dataTableHeader = document.getElementById('dataTableHeader');
+        const dataTableBody = document.getElementById('dataTableBody');
+
+        dataTableHeader.innerHTML = `
+          <tr>
+            <th>Ensaio</th>
+            <th>Resultado</th>
+            <th>Status</th>
+          </tr>
+        `;
+
+        dataTableBody.innerHTML = '';
+
+        // Exemplo de preenchimento de resultados (ajuste conforme os dados reais)
+        if (data.resultados && data.resultados.length > 0) {
+          data.resultados.forEach(resultado => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${resultado.ensaio || ''}</td>
+              <td>${resultado.valor || ''}</td>
+              <td>${resultado.status || ''}</td>
+            `;
+            dataTableBody.appendChild(row);
+          });
+        } else {
+          // Se não houver resultados, exibe uma linha vazia
+          dataTableBody.innerHTML = `
+            <tr>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          `;
+        }
 
         document.getElementById('popupContainer').style.display = 'none';
         document.getElementById('certificateContainer').style.display = 'block';
@@ -643,11 +720,7 @@
       const imgWidth = pageWidth;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      // Se a altura da imagem for maior que a página, divide em páginas
-      let position = margin;
-      const pageHeight = pdf.internal.pageSize.getHeight() - (margin * 2);
-
-      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+      pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight);
 
       const laudoNumber = document.getElementById('numeroLaudo')?.textContent || 'SEM_NUMERO';
       pdf.save(`Laudo_Tecnico_Celpan_${laudoNumber}.pdf`);
