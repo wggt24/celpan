@@ -762,33 +762,21 @@ function showError(msg) {
 // ===============================
 // DOWNLOAD PDF (INALTERADO)
 // ===============================
-async function downloadPDF() {
-  const { jsPDF } = window.jspdf;
-  const element = document.querySelector('.certificate-container');
+function downloadPDF() {
+  const laudo = document.getElementById('numeroLaudo').textContent;
 
-  const controls = document.querySelector('.controls');
-  if (controls) controls.style.display = 'none';
+  if (!laudo) {
+    alert('Número do laudo não encontrado');
+    return;
+  }
 
-  const canvas = await html2canvas(element, {
-    scale: 3,
-    useCORS: true,
-    backgroundColor: '#ffffff'
-  });
-
-  if (controls) controls.style.display = 'flex';
-
-  const imgData = canvas.toDataURL('image/png');
-  const pdf = new jsPDF('p', 'mm', 'a4');
-
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const imgWidth = pageWidth - 10;
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-  pdf.addImage(imgData, 'PNG', 5, 0, imgWidth, imgHeight);
-
-  const laudo = document.getElementById('numeroLaudo').textContent || 'SEM_NUMERO';
-  pdf.save(`Laudo_Tecnico_Celpan_${laudo}.pdf`);
+  // abre o PDF direto do backend
+  window.open(
+    `${API_URL}?action=downloadPdf&numeroLaudo=${encodeURIComponent(laudo)}`,
+    '_blank'
+  );
 }
+
 </script>
 
 </body>
