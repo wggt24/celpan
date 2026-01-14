@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laudo Técnico - Celpan</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+    }
+
+    body {
+      background-color: #f8f9fa;
+      color: #333;
+      line-height: 1.5;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      padding: 15mm;
+      background: white;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Popup inicial */
+    .popup-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+
+    .popup {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      max-width: 450px;
+      width: 90%;
+    }
+
+    .popup h2 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+      font-size: 24px;
+      border-bottom: 3px solid #a82a1d;
+      padding-bottom: 10px;
+      display: inline-block;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #2c3e50;
+      font-size: 15px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      font-size: 15px;
+      transition: border 0.3s;
+    }
+
+    .input-group input:focus {
+      border-color: #a82a1d;
+      outline: none;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #a82a1d 0%, #8e2215 100%);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      margin: 10px 5px;
+      width: 100%;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      opacity: 0.95;
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, #38a169 0%, #22543d 100%);
+    }
+
+    .btn-print {
+      background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+    }
+
+    .loading, .error-message, .success-message {
+      margin: 15px 0;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .error-message {
+      background: #fed7d7;
+      color: #c53030;
+      border: 1px solid #feb2b2;
+    }
+
+    .success-message {
+      background: #c6f6d5;
+      color: #2f855a;
+      border: 1px solid #9ae6b4;
+    }
+
+    /* Layout do Laudo */
+    .certificate-container {
+      display: none;
+    }
+
+    .certificate-header {
+      text-align: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 3px solid #a82a1d;
+    }
+
+    .logo-container {
+      margin-bottom: 15px;
+      height: 80px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .logo-container img {
+      max-height: 70px;
+      width: auto;
+    }
+
+    .certificate-title {
+      color: #2c3e50;
+      font-size: 26px;
+      margin-bottom: 8px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .certificate-subtitle {
+      color: #7f8c8d;
+      font-size: 16px;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    .certificate-number {
+      color: #a82a1d;
+      font-size: 15px;
+      font-weight: 700;
+      background-color: #f8f9fa;
+      padding: 8px 15px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-top: 10px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .section-title {
+      background: linear-gradient(135deg, #a82a1d 0%, #8e2215 100%);
+      color: white;
+      padding: 10px 15px;
+      margin: 20px 0 15px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .info-card {
+      background: #ffffff;
+      padding: 12px;
+      border-radius: 6px;
+      border-left: 4px solid #a82a1d;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .info-label {
+      font-weight: 700;
+      color: #2c3e50;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .info-value {
+      color: #333;
+      text-align: right;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* Tabelas */
+    .equipment-table, .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-bottom: 20px;
+    }
+
+    .equipment-table th, .equipment-table td,
+    .data-table th, .data-table td {
+      padding: 10px 8px;
+      text-align: center;
+      border: 1px solid #e0e0e0;
+    }
+
+    .equipment-table th, .data-table th {
+      background: linear-gradient(135deg, #a82a1d 0%, #8e2215 100%);
+      color: white;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 12px 8px;
+    }
+
+    .equipment-table tr:nth-child(even),
+    .data-table tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+
+    .equipment-table td:first-child,
+    .equipment-table th:first-child,
+    .data-table td:first-child,
+    .data-table th:first-child {
+      text-align: left;
+      padding-left: 10px;
+    }
+
+    .equipment-table td:last-child,
+    .equipment-table th:last-child,
+    .data-table td:last-child,
+    .data-table th:last-child {
+      text-align: right;
+      padding-right: 10px;
+    }
+
+    .equipment-table th:nth-child(1) { width: 30%; }
+    .equipment-table th:nth-child(2) { width: 20%; }
+    .equipment-table th:nth-child(3) { width: 30%; }
+    .equipment-table th:nth-child(4) { width: 20%; }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 11px;
+    }
+
+    .status-ap {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    /* Legenda e normas */
+    .legenda-normas {
+      text-align: center;
+      margin: 25px 0;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      font-size: 12px;
+      border: 1px solid #e0e0e0;
+    }
+
+    /* Assinaturas */
+    .signatures-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      margin: 30px 0;
+    }
+
+    .signature-box {
+      text-align: center;
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      background: white;
+    }
+
+    .signature-box img {
+      max-width: 180px;
+      height: auto;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+    }
+
+    .signature-name {
+      font-weight: 800;
+      color: #2c3e50;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .signature-title {
+      color: #7f8c8d;
+      margin-bottom: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .signature-id {
+      color: #a82a1d;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* Rodapé */
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 2px solid #e0e0e0;
+      color: #7f8c8d;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    /* Controles */
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    /* Estilo para impressão */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+        width: 210mm;
+        height: 297mm;
+      }
+
+      .popup-container,
+      .btn,
+      .controls {
+        display: none !important;
+      }
+
+      .certificate-container {
+        display: block !important;
+        padding: 0;
+        margin: 0;
+        font-size: 9pt;
+        width: 100%;
+      }
+
+      .container {
+        box-shadow: none;
+        padding: 10mm;
+        margin: 0;
+        width: 210mm;
+        min-height: 297mm;
+      }
+
+      .section-title {
+        break-inside: avoid;
+      }
+
+      .equipment-table,
+      .data-table {
+        font-size: 8pt;
+      }
+
+      .info-item {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Popup inicial -->
+    <div class="popup-container" id="popupContainer">
+      <div class="popup">
+        <h2>Consulta de Laudo</h2>
+        <div class="input-group">
+          <label for="laudoNumber">Número do Laudo (Rastreabilidade)</label>
+          <input type="text" id="laudoNumber" placeholder="Digite o número do laudo" autocomplete="off">
+        </div>
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+        <div class="loading" id="loading">
+          <p>Buscando dados...</p>
+        </div>
+        <button class="btn" id="generateBtn">Gerar Laudo</button>
+      </div>
+    </div>
+
+    <!-- Certificado de Laudo Técnico -->
+    <div class="certificate-container" id="certificateContainer">
+      <div class="certificate-header">
+        <div class="logo-container">
+          <img id="companyLogo" src="https://www.celpan.com.br/wp-content/uploads/2021/12/logo.png" alt="Logo Celpan">
+        </div>
+        <h1 class="certificate-title">Laudo Técnico</h1>
+       
+
+      <div class="certificate-subtitle">EPI / EPC: <span id="productName"></span>
+      </div>
+        <div class="certificate-number" style="display: none;">
+      NÚM: <span id="numeroLaudo"></span>
+       </div>
+
+
+      <!-- Informações do ensaio -->
+      <div class="section-title">Informações do Ensaio</div>
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-item">
+            <span class="info-label">Número de Rastreabilidade:</span>
+            <span class="info-value" id="rastreabilidade"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Mês do Ensaio:</span>
+            <span class="info-value" id="mesEnsaio"></span>
+          </div>
+        </div>
+        <div class="info-card">
+          <div class="info-item">
+            <span class="info-label">Marca/Fabricante:</span>
+            <span class="info-value" id="produto"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Classe:</span>
+            <span class="info-value" id="classe"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Próximo Ensaio:</span>
+            <span class="info-value" id="proximoEnsaio"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Equipamentos utilizados -->
+      <div class="section-title">Equipamentos Utilizados</div>
+      <div class="equipment-section">
+        <table class="equipment-table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Código</th>
+              <th>Certif. Calibração</th>
+              <th>Validade</th>
+            </tr>
+          </thead>
+          <tbody id="equipmentTableBody">
+            <!-- Dinâmico -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Condições do ensaio -->
+      <div class="section-title">Condições do Ensaio</div>
+      <div class="info-grid">
+        <div class="info-card" style="grid-column: 1 / -1;">
+          <div class="info-item">
+            <span class="info-label">Temperatura:</span>
+            <span class="info-value" id="temperatura"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Tempo de Ensaio:</span>
+            <span class="info-value" id="tempoEnsaio"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Umidade:</span>
+            <span class="info-value" id="umidade"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resultados dos ensaios -->
+      <div class="section-title">Resultados dos Ensaios</div>
+      <div class="data-table-container">
+        <table class="data-table">
+          <thead id="dataTableHeader">
+            <!-- Dinâmico -->
+          </thead>
+          <tbody id="dataTableBody">
+            <!-- Dinâmico -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Legenda e normas -->
+      <div class="legenda-normas">
+        <div style="margin-bottom: 6px;">
+          <strong>Legenda:</strong> AP = Aprovado | NST = Não Suportou Tensão | RV = Reprovado Visual | FD = Fora do Dimensional
+        </div>
+        <div>
+          <strong>Normas Referenciadas:</strong> NR-10 / ASTM D-1048-14 / ASTM D178-19 / ASTM F479-06 / NBR-14039/2005
+        </div>
+      </div>
+
+      <!-- Assinaturas -->
+      <div class="signatures-section">
+        <div class="signature-box">
+          <img src="https://raw.githubusercontent.com/ticelpan1670-droid/celpan/main/imagens/assinatura-rogerio.png" alt="Assinatura Rogério Percílio Figueiredo">
+          <div class="signature-name">Rogério Percílio Figueiredo</div>
+          <div class="signature-title">Responsável Técnico</div>
+          <div class="signature-id">CREA: 5060011343</div>
+        </div>
+        <div class="signature-box">
+          <img src="https://raw.githubusercontent.com/ticelpan1670-droid/celpan/main/imagens/assinatura-cleber.png" alt="Assinatura Cleber Rodrigo Martins">
+          <div class="signature-name">Cleber Rodrigo Martins</div>
+          <div class="signature-title">Coordenador de Qualidade</div>
+          <div class="signature-id">CREA: 5062345678</div>
+        </div>
+      </div>
+
+      <!-- Rodapé -->
+      <div class="footer">
+        <div><strong>CELPAN - COBRA BRASIL SERVIÇOS DE COMUNICAÇÃO E ENERGIA S.A.</strong></div>
+        <div>CNPJ: 12.345.678/0001-99</div>
+        <div>Estrada da Aldeinha, 1670 - Jardim Marilu - Carapicuíba, São Paulo - CEP: 06343-040</div>
+        <div>Contato: (11) 3229-6699 / 3228-6015 / 2967-7040</div>
+      </div>
+
+      <!-- Controles -->
+      <div class="controls">
+        <button class="btn" onclick="voltarConsulta()">Nova Consulta</button>
+        <button class="btn btn-download" onclick="downloadPDF()">Download PDF</button>
+        <button class="btn btn-print" onclick="window.print()">Imprimir Laudo</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbx2pkgn8D7wteKbs7ztzo-BIds9l0OmW0yNZG_slb3yNlUbPVdH0DzH8wJfz9bVcOsq/exec';
+
+document.getElementById('generateBtn').addEventListener('click', async function () {
+
+  var numeroLaudo = document.getElementById('laudoNumber').value.trim();
+
+  if (!numeroLaudo) {
+    document.getElementById('errorMessage').textContent = 'Digite o número do laudo.';
+    document.getElementById('errorMessage').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('errorMessage').style.display = 'none';
+
+  try {
+    const response = await fetch(
+      WEBAPP_URL + '?laudo=' + encodeURIComponent(numeroLaudo)
+    );
+
+    const result = await response.json();
+    document.getElementById('loading').style.display = 'none';
+
+    if (!result.success) {
+      document.getElementById('errorMessage').textContent = result.message;
+      document.getElementById('errorMessage').style.display = 'block';
+      return;
+    }
+
+    // ======= MESMO CÓDIGO QUE VOCÊ JÁ USAVA =======
+    var data = result.data;
+
+    document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
+    document.getElementById('productName').textContent = data.produto;
+
+    document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
+    document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
+    document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
+    document.getElementById('produto').textContent = data.produto;
+    document.getElementById('classe').textContent = data.classe;
+
+    // (equipamentos, resultados, etc — IGUAL AO SEU)
+
+    document.getElementById('popupContainer').style.display = 'none';
+    document.getElementById('certificateContainer').style.display = 'block';
+
+  } catch (err) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('errorMessage').textContent = 'Erro ao buscar dados';
+    document.getElementById('errorMessage').style.display = 'block';
+    console.error(err);
+  }
+});
+
+
+</script>
+</body>
+</html>
