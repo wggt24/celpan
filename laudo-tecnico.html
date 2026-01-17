@@ -361,44 +361,6 @@ function showError(msg) {
 
 
 
-  <script>
-let bloqueioAtivo = true;
-
-function ativarBloqueio() {
-  bloqueioAtivo = true;
-}
-
-function desativarBloqueio() {
-  bloqueioAtivo = false;
-}
-
-// Botão direito
-document.addEventListener('contextmenu', function (e) {
-  if (bloqueioAtivo) {
-    e.preventDefault();
-  }
-});
-
-// Teclas de inspeção
-document.addEventListener('keydown', function (e) {
-  if (!bloqueioAtivo) return;
-
-  // F12
-  if (e.key === 'F12') {
-    e.preventDefault();
-  }
-
-  // Ctrl+Shift+I / J / C
-  if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) {
-    e.preventDefault();
-  }
-
-  // Ctrl+U
-  if (e.ctrlKey && e.key.toUpperCase() === 'U') {
-    e.preventDefault();
-  }
-});
-</script>
 
 
 </body>
