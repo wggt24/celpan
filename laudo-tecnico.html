@@ -219,49 +219,55 @@
 
     <!-- Popup inicial -->
     <div class="popup-container" id="popupContainer">
-      <div class="popup">
-        <h2>Consulta de Laudo</h2>
+  <div class="popup" style="
+    width: 420px;
+    padding: 26px;
+    font-size: 15px;
+  ">
+    <h2 style="margin-bottom: 18px;">Consulta de Laudo</h2>
 
-        <!-- CAMPOS CLIENTE -->
-        <div class="input-group">
-          <label>Nome</label>
-          <input type="text" id="nome" placeholder="Digite o nome">
-        </div>
-
-        <div class="input-group">
-          <label>CNPJ</label>
-          <input type="text" id="cnpj" placeholder="Digite o CNPJ">
-        </div>
-
-        <div class="input-group">
-          <label>WhatsApp</label>
-          <input type="text" id="zap" placeholder="Digite o WhatsApp">
-        </div>
-
-        <div class="input-group">
-          <label>Email</label>
-          <input type="email" id="email" placeholder="Digite o email">
-        </div>
-
-        <hr>
-
-        <!-- CAMPO EXISTENTE -->
-        <div class="input-group">
-          <label for="laudoNumber">Número do Laudo (Rastreabilidade)</label>
-          <input type="text" id="laudoNumber" placeholder="Digite o número do laudo" autocomplete="off">
-        </div>
-
-        <div class="error-message" id="errorMessage"></div>
-        <div class="success-message" id="successMessage"></div>
-
-        <div class="loading" id="loading">
-          <p>Buscando dados...</p>
-        </div>
-
-        <button class="btn" id="sendClientBtn">Enviar Dados</button>
-        <button class="btn" id="generateBtn">Gerar Laudo</button>
-      </div>
+    <!-- DADOS DO CLIENTE -->
+    <div class="input-group">
+      <label>Nome</label>
+      <input type="text" id="nome" placeholder="Nome completo">
     </div>
+
+    <div class="input-group">
+      <label>CNPJ</label>
+      <input type="text" id="cnpj" placeholder="00.000.000/0000-00">
+    </div>
+
+    <div class="input-group">
+      <label>WhatsApp</label>
+      <input type="text" id="zap" placeholder="DDD + número">
+    </div>
+
+    <div class="input-group">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="email@empresa.com">
+    </div>
+
+    <hr style="margin:18px 0; opacity:.3;">
+
+    <!-- LAUDO -->
+    <div class="input-group">
+      <label for="laudoNumber">Número do Laudo (Rastreabilidade)</label>
+      <input type="text" id="laudoNumber" placeholder="Digite o número do laudo">
+    </div>
+
+    <div class="error-message" id="errorMessage"></div>
+    <div class="success-message" id="successMessage"></div>
+
+    <div class="loading" id="loading">
+      <p>Processando...</p>
+    </div>
+
+    <button class="btn" id="generateBtn" style="margin-top:10px;">
+      Gerar Laudo
+    </button>
+  </div>
+</div>
+
 
     <!-- RESTANTE DO SEU HTML DO LAUDO -->
     <!-- (NADA ALTERADO AQUI) -->
@@ -272,53 +278,70 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbxiVkjAdyBUoGEtoUxqWcjfgWEPZpOyWgSN1TmmhTLRX15F2L6PLiL9E3ElnIdDL24fBQ/exec';
 
 // ===============================
-// ENVIAR DADOS CLIENTE
-// ===============================
-document.getElementById('sendClientBtn').addEventListener('click', async () => {
-
-  const payload = {
-    nome: document.getElementById('nome').value.trim(),
-    cnpj: document.getElementById('cnpj').value.trim(),
-    zap: document.getElementById('zap').value.trim(),
-    email: document.getElementById('email').value.trim()
-  };
-
-  if (!payload.nome || !payload.cnpj) {
-    showError('Nome e CNPJ são obrigatórios.');
-    return;
-  }
-
-  try {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    const result = await response.json();
-
-    if (result.status === 'sucesso') {
-      document.getElementById('successMessage').textContent = 'Dados enviados com sucesso!';
-      document.getElementById('successMessage').style.display = 'block';
-    } else {
-      showError(result.mensagem);
-    }
-
-  } catch (e) {
-    showError('Erro ao enviar dados.');
-  }
-});
-
-// ===============================
-// GERAR LAUDO (NÃO ALTERADO)
+// GERAR LAUDO (ENVIA CLIENTE + BUSCA LAUDO)
 // ===============================
 document.getElementById('generateBtn').addEventListener('click', async function () {
+
+  const nome  = document.getElementById('nome').value.trim();
+  const cnpj  = document.getElementById('cnpj').value.trim();
+  const zap   = document.getElementById('zap').value.trim();
+  const email = document.getElementById('email').value.trim();
   const numeroLaudo = document.getElementById('laudoNumber').value.trim();
-  if (!numeroLaudo) {
-    showError('Digite o número do laudo.');
+
+  if (!nome || !cnpj || !numeroLaudo) {
+    showError('Preencha Nome, CNPJ e Número do Laudo.');
     return;
   }
-  // (restante do seu código permanece exatamente igual)
+
+  showLoading(true);
+
+  try {
+    // ===============================
+    // 1️⃣ ENVIA DADOS DO CLIENTE
+    // ===============================
+    await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome, cnpj, zap, email })
+    });
+
+    // ===============================
+    // 2️⃣ BUSCA O LAUDO (LÓGICA ORIGINAL)
+    // ===============================
+    const response = await fetch(
+      `${API_URL}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`
+    );
+
+    const result = await response.json();
+    showLoading(false);
+
+    if (!result.success) {
+      showError(result.message);
+      return;
+    }
+
+    const data = result.data;
+
+    // ====== CABEÇALHO ======
+    document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
+    document.getElementById('productName').textContent = data.produto;
+
+    // ====== INFO ENSAIO ======
+    document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
+    document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
+    document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
+    document.getElementById('produto').textContent = data.produto;
+    document.getElementById('classe').textContent = data.classe;
+
+    // ====== EXIBIR LAUDO ======
+    document.getElementById('popupContainer').style.display = 'none';
+    document.getElementById('certificateContainer').style.display = 'block';
+    document.querySelector('.container').style.overflow = 'hidden';
+
+  } catch (err) {
+    showLoading(false);
+    showError('Erro ao processar os dados.');
+  }
 });
 
 // ===============================
@@ -335,6 +358,7 @@ function showError(msg) {
   document.getElementById('errorMessage').style.display = 'block';
 }
 </script>
+
 
 
   <script>
