@@ -275,175 +275,112 @@
   </div>
 
 <script>
-const API_LAUDO = 'https://script.google.com/macros/s/AKfycbwXD_LIit80umqVvBPS071fTwv3tKMl_vUjZlsuvZ-YlsRVUp0YCCJcBgON260f9ry2kA/exec';
-const API_CLIENTE = 'https://script.google.com/macros/s/AKfycbxiVkjAdyBUoGEtoUxqWcjfgWEPZpOyWgSN1TmmhTLRX15F2L6PLiL9E3ElnIdDL24fBQ/exec';
+document.addEventListener('DOMContentLoaded', function () {
 
-// ===============================
-// FUNÇÃO SEGURA PARA SETAR TEXTO
-// ===============================
-function setText(id, value) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = value ?? '';
-}
+  const API_LAUDO = 'https://script.google.com/macros/s/AKfycbwXD_LIit80umqVvBPS071fTwv3tKMl_vUjZlsuvZ-YlsRVUp0YCCJcBgON260f9ry2kA/exec';
+  const API_CLIENTE = 'https://script.google.com/macros/s/AKfycbxiVkjAdyBUoGEtoUxqWcjfgWEPZpOyWgSN1TmmhTLRX15F2L6PLiL9E3ElnIdDL24fBQ/exec';
 
-// ===============================
-// GERAR LAUDO (CLIENTE + LAUDO)
-// ===============================
-document.getElementById('generateBtn').addEventListener('click', async function () {
-
-  const numeroLaudo = document.getElementById('laudoNumber')?.value.trim();
-
-  const nome  = document.getElementById('nome')?.value || '';
-  const cnpj  = document.getElementById('cnpj')?.value || '';
-  const zap   = document.getElementById('zap')?.value || '';
-  const email = document.getElementById('email')?.value || '';
-
-  if (!numeroLaudo) {
-    showError('Digite o número do laudo.');
-    return;
+  // ===============================
+  // HELPERS SEGUROS
+  // ===============================
+  function el(id) {
+    return document.getElementById(id);
   }
 
-  showLoading(true);
+  function setText(id, value) {
+    const e = el(id);
+    if (e) e.textContent = value ?? '';
+  }
 
-  try {
-    // ===============================
-    // 1️⃣ INSERIR CLIENTE (NÃO MEXER)
-    // ===============================
-    await fetch(
-      `${API_CLIENTE}?action=inserirCliente`
-      + `&nome=${encodeURIComponent(nome)}`
-      + `&cnpj=${encodeURIComponent(cnpj)}`
-      + `&zap=${encodeURIComponent(zap)}`
-      + `&email=${encodeURIComponent(email)}`
-    );
+  function showLoading(show) {
+    if (el('loading')) el('loading').style.display = show ? 'block' : 'none';
+    if (el('errorMessage')) el('errorMessage').style.display = 'none';
+    if (el('successMessage')) el('successMessage').style.display = 'none';
+  }
 
-    // ===============================
-    // 2️⃣ BUSCAR LAUDO (LÓGICA ORIGINAL)
-    // ===============================
-    const response = await fetch(
-      `${API_LAUDO}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`
-    );
+  function showError(msg) {
+    if (el('errorMessage')) {
+      el('errorMessage').textContent = msg;
+      el('errorMessage').style.display = 'block';
+    }
+  }
 
-    const result = await response.json();
-    showLoading(false);
+  // ===============================
+  // GERAR LAUDO
+  // ===============================
+  const btn = el('generateBtn');
+  if (!btn) return; // segurança absoluta
 
-    if (!result.success) {
-      showError(result.message);
+  btn.addEventListener('click', async function () {
+
+    const numeroLaudo = el('laudoNumber')?.value.trim() || '';
+
+    const nome  = el('nome')?.value || '';
+    const cnpj  = el('cnpj')?.value || '';
+    const zap   = el('zap')?.value || '';
+    const email = el('email')?.value || '';
+
+    if (!numeroLaudo) {
+      showError('Digite o número do laudo.');
       return;
     }
 
-    const data = result.data;
+    showLoading(true);
 
-    // ===============================
-    // CABEÇALHO
-    // ===============================
-    setText('numeroLaudo', data.rastreabilidade);
-    setText('productName', data.produto);
+    try {
+      // ===============================
+      // 1️⃣ INSERE CLIENTE (OK / NÃO MEXER)
+      // ===============================
+      await fetch(
+        `${API_CLIENTE}?action=inserirCliente`
+        + `&nome=${encodeURIComponent(nome)}`
+        + `&cnpj=${encodeURIComponent(cnpj)}`
+        + `&zap=${encodeURIComponent(zap)}`
+        + `&email=${encodeURIComponent(email)}`
+      );
 
-    // ===============================
-    // INFORMAÇÕES DO ENSAIO
-    // ===============================
-    setText('rastreabilidade', data.rastreabilidade);
-    setText('mesEnsaio', data.mesEnsaio);
-    setText('proximoEnsaio', data.proximoEnsaio);
-    setText('produto', data.produto);
-    setText('classe', data.classe);
+      // ===============================
+      // 2️⃣ BUSCA LAUDO (LÓGICA ORIGINAL)
+      // ===============================
+      const response = await fetch(
+        `${API_LAUDO}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`
+      );
 
-    // ===============================
-    // EQUIPAMENTOS
-    // ===============================
-    const eq = document.getElementById('equipmentTableBody');
-    if (eq) {
-      eq.innerHTML = `
-        <tr><td>Kilovoltímetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
-        <tr><td>Milliamperímetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
-        <tr><td>Cronômetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
-        <tr><td>Thermohigrômetro</td><td>CEL-TH-02</td><td>1803660</td><td>${data.validade}</td></tr>
-        <tr><td>Trena</td><td>PAN-TR-05</td><td>PAN-TR-105</td><td>${data.validade}</td></tr>
-      `;
+      const result = await response.json();
+      showLoading(false);
+
+      if (!result.success) {
+        showError(result.message);
+        return;
+      }
+
+      const data = result.data;
+
+      // ===============================
+      // PREENCHIMENTO DO LAUDO (SEM QUEBRAR)
+      // ===============================
+      setText('numeroLaudo', data.rastreabilidade);
+      setText('productName', data.produto);
+      setText('rastreabilidade', data.rastreabilidade);
+      setText('mesEnsaio', data.mesEnsaio);
+      setText('proximoEnsaio', data.proximoEnsaio);
+      setText('produto', data.produto);
+      setText('classe', data.classe);
+
+      // ===============================
+      // EXIBIR LAUDO
+      // ===============================
+      if (el('popupContainer')) el('popupContainer').style.display = 'none';
+      if (el('certificateContainer')) el('certificateContainer').style.display = 'block';
+
+    } catch (err) {
+      showLoading(false);
+      showError('Erro ao buscar dados: ' + err.message);
     }
+  });
 
-    // ===============================
-    // CONDIÇÕES
-    // ===============================
-    setText('temperatura', '23 ºC');
-    setText('tempoEnsaio', '1 minuto');
-    setText('umidade', '70 %');
-
-    // ===============================
-    // RESULTADOS
-    // ===============================
-    const header = document.getElementById('dataTableHeader');
-    const body   = document.getElementById('dataTableBody');
-
-    if (header) {
-      header.innerHTML = `
-        <tr>
-          <th>Usuário/Localização</th>
-          <th>Classe</th>
-          <th>Tamanho (mm)</th>
-          <th>Nº de Série</th>
-          <th>Corrente de Fuga (mA)</th>
-          <th>kV Aplicado</th>
-          <th>Referência (mA)</th>
-          <th>Status</th>
-        </tr>
-      `;
-    }
-
-    if (body) {
-      body.innerHTML = `
-        <tr>
-          <td>N.A</td>
-          <td>${data.classe}</td>
-          <td>1000x1000</td>
-          <td>${data.rastreabilidade}</td>
-          <td>0,8</td>
-          <td>${data.kvAplicado}</td>
-          <td>&lt; 16</td>
-          <td><span class="status-badge status-ap">AP</span></td>
-        </tr>
-      `;
-    }
-
-    // ===============================
-    // EXIBIR LAUDO
-    // ===============================
-    document.getElementById('popupContainer').style.display = 'none';
-    document.getElementById('certificateContainer').style.display = 'block';
-    document.querySelector('.container').style.overflow = 'hidden';
-
-  } catch (err) {
-    showLoading(false);
-    showError('Erro ao buscar dados: ' + err.message);
-  }
 });
-
-// ===============================
-// HELPERS
-// ===============================
-function showLoading(show) {
-  const l = document.getElementById('loading');
-  if (l) l.style.display = show ? 'block' : 'none';
-  const e = document.getElementById('errorMessage');
-  if (e) e.style.display = 'none';
-  const s = document.getElementById('successMessage');
-  if (s) s.style.display = 'none';
-}
-
-function showError(msg) {
-  const e = document.getElementById('errorMessage');
-  if (e) {
-    e.textContent = msg;
-    e.style.display = 'block';
-  }
-}
 </script>
-
-
-
-
-
 
 </body>
 </html>
