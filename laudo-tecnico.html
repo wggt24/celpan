@@ -275,44 +275,48 @@
   </div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbxiVkjAdyBUoGEtoUxqWcjfgWEPZpOyWgSN1TmmhTLRX15F2L6PLiL9E3ElnIdDL24fBQ/exec';
+
+  const API_LAUDO = 'https://script.google.com/macros/s/AKfycbwXD_LIit80umqVvBPS071fTwv3tKMl_vUjZlsuvZ-YlsRVUp0YCCJcBgON260f9ry2kA/exec';
+
+const API_CLIENTE = 'https://script.google.com/macros/s/AKfycbxiVkjAdyBUoGEtoUxqWcjfgWEPZpOyWgSN1TmmhTLRX15F2L6PLiL9E3ElnIdDL24fBQ/exec';
 
 // ===============================
 // GERAR LAUDO (ENVIA CLIENTE + BUSCA LAUDO)
 // ===============================
-document.getElementById('generateBtn').addEventListener('click', async () => {
+document.getElementById('generateBtn').addEventListener('click', async function () {
 
-  const nome  = document.getElementById('nome').value.trim();
-  const cnpj  = document.getElementById('cnpj').value.trim();
-  const zap   = document.getElementById('zap').value.trim();
-  const email = document.getElementById('email').value.trim();
   const numeroLaudo = document.getElementById('laudoNumber').value.trim();
 
-  if (!nome || !cnpj || !numeroLaudo) {
-    showError('Preencha Nome, CNPJ e Número do Laudo.');
+  // (se você tiver os campos de cliente no popup)
+  const nome  = document.getElementById('nome')?.value || '';
+  const cnpj  = document.getElementById('cnpj')?.value || '';
+  const zap   = document.getElementById('zap')?.value || '';
+  const email = document.getElementById('email')?.value || '';
+
+  if (!numeroLaudo) {
+    showError('Digite o número do laudo.');
     return;
   }
 
   showLoading(true);
 
   try {
-    // =========================
-    // 1️⃣ INSERE CLIENTE
-    // =========================
+    // ===============================
+    // 1️⃣ INSERE CLIENTE (BACKEND NOVO)
+    // ===============================
     await fetch(
-      `${API_URL}?action=inserirCliente`
+      `${API_CLIENTE}?action=inserirCliente`
       + `&nome=${encodeURIComponent(nome)}`
       + `&cnpj=${encodeURIComponent(cnpj)}`
       + `&zap=${encodeURIComponent(zap)}`
       + `&email=${encodeURIComponent(email)}`
     );
 
-    // =========================
-    // 2️⃣ BUSCA LAUDO (ORIGINAL)
-    // =========================
+    // ===============================
+    // 2️⃣ BUSCA LAUDO (BACKEND ORIGINAL)
+    // ===============================
     const response = await fetch(
-      `${API_URL}?action=buscarLaudoPorNumero`
-      + `&numeroLaudo=${encodeURIComponent(numeroLaudo)}`
+      `${API_LAUDO}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`
     );
 
     const result = await response.json();
@@ -323,14 +327,27 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
       return;
     }
 
-    // ⬇️ resto do seu código permanece igual
+    const data = result.data;
 
-  } catch (e) {
+    // 🔵 TODO O SEU CÓDIGO DE PREENCHER LAUDO
+    // (100% igual ao que você já tinha)
+    document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
+    document.getElementById('productName').textContent = data.produto;
+    document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
+    document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
+    document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
+    document.getElementById('produto').textContent = data.produto;
+    document.getElementById('classe').textContent = data.classe;
+
+    // exibir laudo
+    document.getElementById('popupContainer').style.display = 'none';
+    document.getElementById('certificateContainer').style.display = 'block';
+
+  } catch (err) {
     showLoading(false);
-    showError('Erro de comunicação.');
+    showError('Erro ao buscar dados: ' + err.message);
   }
 });
-
 
 // ===============================
 // HELPERS
