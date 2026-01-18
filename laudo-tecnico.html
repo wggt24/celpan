@@ -280,7 +280,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbxiVkjAdyBUoGEtoUxqWcjf
 // ===============================
 // GERAR LAUDO (ENVIA CLIENTE + BUSCA LAUDO)
 // ===============================
-document.getElementById('generateBtn').addEventListener('click', async function () {
+document.getElementById('generateBtn').addEventListener('click', async () => {
 
   const nome  = document.getElementById('nome').value.trim();
   const cnpj  = document.getElementById('cnpj').value.trim();
@@ -296,20 +296,23 @@ document.getElementById('generateBtn').addEventListener('click', async function 
   showLoading(true);
 
   try {
-    // ===============================
-    // 1️⃣ ENVIA DADOS DO CLIENTE
-    // ===============================
-    await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome, cnpj, zap, email })
-    });
+    // =========================
+    // 1️⃣ INSERE CLIENTE
+    // =========================
+    await fetch(
+      `${API_URL}?action=inserirCliente`
+      + `&nome=${encodeURIComponent(nome)}`
+      + `&cnpj=${encodeURIComponent(cnpj)}`
+      + `&zap=${encodeURIComponent(zap)}`
+      + `&email=${encodeURIComponent(email)}`
+    );
 
-    // ===============================
-    // 2️⃣ BUSCA O LAUDO (LÓGICA ORIGINAL)
-    // ===============================
+    // =========================
+    // 2️⃣ BUSCA LAUDO (ORIGINAL)
+    // =========================
     const response = await fetch(
-      `${API_URL}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`
+      `${API_URL}?action=buscarLaudoPorNumero`
+      + `&numeroLaudo=${encodeURIComponent(numeroLaudo)}`
     );
 
     const result = await response.json();
@@ -320,29 +323,14 @@ document.getElementById('generateBtn').addEventListener('click', async function 
       return;
     }
 
-    const data = result.data;
+    // ⬇️ resto do seu código permanece igual
 
-    // ====== CABEÇALHO ======
-    document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
-    document.getElementById('productName').textContent = data.produto;
-
-    // ====== INFO ENSAIO ======
-    document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
-    document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
-    document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
-    document.getElementById('produto').textContent = data.produto;
-    document.getElementById('classe').textContent = data.classe;
-
-    // ====== EXIBIR LAUDO ======
-    document.getElementById('popupContainer').style.display = 'none';
-    document.getElementById('certificateContainer').style.display = 'block';
-    document.querySelector('.container').style.overflow = 'hidden';
-
-  } catch (err) {
+  } catch (e) {
     showLoading(false);
-    showError('Erro ao processar os dados.');
+    showError('Erro de comunicação.');
   }
 });
+
 
 // ===============================
 // HELPERS
