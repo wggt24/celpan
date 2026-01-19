@@ -519,49 +519,51 @@
     // ===============================
     // CAPTURAR DADOS DO FORMULÁRIO E ENVIAR PARA O BACKEND
     // ===============================
-    document.getElementById('submitClientData').addEventListener('click', async function() {
-        const nome = document.getElementById('nome').value.trim();
-        const cnpj = document.getElementById('cnpj').value.trim();
-        const whatsapp = document.getElementById('whatsapp').value.trim();
-        const email = document.getElementById('email').value.trim();
+    documentdocument.getElementById('submitClientData').addEventListener('click', async function() {
+    const nome = document.getElementById('nome').value.trim();
+    const cnpj = document.getElementById('cnpj').value.trim();
+    const zap = document.getElementById('whatsapp').value.trim(); // Alterado para 'zap'
+    const email = document.getElementById('email').value.trim();
 
-        if (!nome || !cnpj || !whatsapp || !email) {
-            showError('Preencha todos os campos do formulário.');
+    if (!nome || !cnpj || !zap || !email) {
+        showError('Preencha todos os campos do formulário.');
+        return;
+    }
+
+    showLoading(true);
+
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'salvarDadosCliente',
+                nome: nome,
+                cnpj: cnpj,
+                zap: zap, // Alterado para 'zap'
+                email: email
+            })
+        });
+
+        const result = await response.json();
+        showLoading(false);
+
+        if (!result.success) {
+            showError(result.message);
             return;
         }
 
-        showLoading(true);
+        document.getElementById('successMessage').textContent = 'Dados salvos com sucesso!';
+        document.getElementById('successMessage').style.display = 'block';
 
-        try {
-            const response = await fetch(`${API_URL}?action=salvarDadosCliente`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    nome: nome,
-                    cnpj: cnpj,
-                    whatsapp: whatsapp,
-                    email: email
-                })
-            });
+    } catch (err) {
+        showLoading(false);
+        showError('Erro ao salvar dados: ' + err.message);
+    }
+});
 
-            const result = await response.json();
-            showLoading(false);
-
-            if (!result.success) {
-                showError(result.message);
-                return;
-            }
-
-            document.getElementById('successMessage').textContent = 'Dados salvos com sucesso!';
-            document.getElementById('successMessage').style.display = 'block';
-
-        } catch (err) {
-            showLoading(false);
-            showError('Erro ao salvar dados: ' + err.message);
-        }
-    });
 
     // ===============================
     // TESTAR CONEXÃO
