@@ -475,7 +475,7 @@
 <script>
   const API_URL = 'https://script.google.com/macros/s/AKfycbyDfe74-BDLwpV8FZEsW7DWlu2VJs3N9d12JGMIq89_B2uKnffL2l4tZ8gwzsmZTtAYCw/exec';
 
-  document.getElementById('generateBtn').addEventListener('click', async function() {
+  document.getElementById('generateBtn').addEventListener('click', function () {
     const numeroLaudo = document.getElementById('laudoNumber').value.trim();
 
     if (!numeroLaudo) {
@@ -485,109 +485,114 @@
 
     showLoading(true);
 
-    try {
-      // Buscar laudo pelo número
-      const response = await fetch(
-        `${API_URL}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`
-      );
+    // remove chamada anterior (evita duplicar)
+    const oldScript = document.getElementById('jsonpScript');
+    if (oldScript) oldScript.remove();
 
-      const result = await response.json();
-      showLoading(false);
+    const script = document.createElement('script');
+    script.id = 'jsonpScript';
+    script.src =
+      API_URL +
+      '?action=buscarLaudoPorNumero' +
+      '&numeroLaudo=' + encodeURIComponent(numeroLaudo) +
+      '&callback=receberLaudo';
 
-      if (!result.success) {
-        showError(result.message);
-        return;
-      }
-
-      const data = result.data;
-
-      // Preencher cabeçalho
-      document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
-      document.getElementById('productName').textContent = data.produto;
-
-      // Preencher informações do ensaio
-      document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
-      document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
-      document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
-      document.getElementById('produto').textContent = data.produto;
-      document.getElementById('classe').textContent = data.classe;
-
-      // Preencher equipamentos
-      document.getElementById('equipmentTableBody').innerHTML = `
-        <tr>
-          <td>Kilovoltímetro</td>
-          <td>CEL-HP-01</td>
-          <td>${data.certifCalibracao}</td>
-          <td>${data.validade}</td>
-        </tr>
-        <tr>
-          <td>Milliamperímetro</td>
-          <td>CEL-HP-01</td>
-          <td>${data.certifCalibracao}</td>
-          <td>${data.validade}</td>
-        </tr>
-        <tr>
-          <td>Cronômetro</td>
-          <td>CEL-HP-01</td>
-          <td>${data.certifCalibracao}</td>
-          <td>${data.validade}</td>
-        </tr>
-        <tr>
-          <td>Thermohigrômetro</td>
-          <td>CEL-TH-02</td>
-          <td>1803660</td>
-          <td>${data.validade}</td>
-        </tr>
-        <tr>
-          <td>Trena</td>
-          <td>PAN-TR-05</td>
-          <td>PAN-TR-105</td>
-          <td>${data.validade}</td>
-        </tr>
-      `;
-
-      // Preencher condições do ensaio
-      document.getElementById('temperatura').textContent = '23 ºC';
-      document.getElementById('tempoEnsaio').textContent = '1 minuto';
-      document.getElementById('umidade').textContent = '70 %';
-
-      // Preencher resultados
-      document.getElementById('dataTableHeader').innerHTML = `
-        <tr>
-          <th>Usuário/Localização</th>
-          <th>Classe</th>
-          <th>Tamanho (mm)</th>
-          <th>Nº de Série</th>
-          <th>Corrente de Fuga (mA)</th>
-          <th>kV Aplicado</th>
-          <th>Referência (mA)</th>
-          <th>Status</th>
-        </tr>
-      `;
-
-      document.getElementById('dataTableBody').innerHTML = `
-        <tr>
-          <td>N.A</td>
-          <td>${data.classe}</td>
-          <td>1000x1000</td>
-          <td>${data.rastreabilidade}</td>
-          <td>0,8</td>
-          <td>${data.kvAplicado}</td>
-          <td>&lt; 16</td>
-          <td><span class="status-badge status-ap">AP</span></td>
-        </tr>
-      `;
-
-      // Exibir laudo
-      document.getElementById('popupContainer').style.display = 'none';
-      document.getElementById('certificateContainer').style.display = 'block';
-      document.querySelector('.container').style.overflow = 'hidden';
-
-    } catch (err) {
-      showLoading(false);
-      showError('Erro: ' + err.message);
-    }
+    document.body.appendChild(script);
   });
+
+  // 🔥 CALLBACK JSONP
+  function receberLaudo(result) {
+    showLoading(false);
+
+    if (!result.success) {
+      showError(result.message);
+      return;
+    }
+
+    const data = result.data;
+
+    // Cabeçalho
+    document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
+    document.getElementById('productName').textContent = data.produto;
+
+    // Informações do ensaio
+    document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
+    document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
+    document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
+    document.getElementById('produto').textContent = data.produto;
+    document.getElementById('classe').textContent = data.classe;
+
+    // Equipamentos
+    document.getElementById('equipmentTableBody').innerHTML = `
+      <tr>
+        <td>Kilovoltímetro</td>
+        <td>CEL-HP-01</td>
+        <td>${data.certifCalibracao}</td>
+        <td>${data.validade}</td>
+      </tr>
+      <tr>
+        <td>Milliamperímetro</td>
+        <td>CEL-HP-01</td>
+        <td>${data.certifCalibracao}</td>
+        <td>${data.validade}</td>
+      </tr>
+      <tr>
+        <td>Cronômetro</td>
+        <td>CEL-HP-01</td>
+        <td>${data.certifCalibracao}</td>
+        <td>${data.validade}</td>
+      </tr>
+      <tr>
+        <td>Thermohigrômetro</td>
+        <td>CEL-TH-02</td>
+        <td>1803660</td>
+        <td>${data.validade}</td>
+      </tr>
+      <tr>
+        <td>Trena</td>
+        <td>PAN-TR-05</td>
+        <td>PAN-TR-105</td>
+        <td>${data.validade}</td>
+      </tr>
+    `;
+
+    // Condições do ensaio
+    document.getElementById('temperatura').textContent = '23 ºC';
+    document.getElementById('tempoEnsaio').textContent = '1 minuto';
+    document.getElementById('umidade').textContent = '70 %';
+
+    // Resultados
+    document.getElementById('dataTableHeader').innerHTML = `
+      <tr>
+        <th>Usuário/Localização</th>
+        <th>Classe</th>
+        <th>Tamanho (mm)</th>
+        <th>Nº de Série</th>
+        <th>Corrente de Fuga (mA)</th>
+        <th>kV Aplicado</th>
+        <th>Referência (mA)</th>
+        <th>Status</th>
+      </tr>
+    `;
+
+    document.getElementById('dataTableBody').innerHTML = `
+      <tr>
+        <td>N.A</td>
+        <td>${data.classe}</td>
+        <td>1000x1000</td>
+        <td>${data.rastreabilidade}</td>
+        <td>0,8</td>
+        <td>${data.kvAplicado}</td>
+        <td>&lt; 16</td>
+        <td><span class="status-badge status-ap">AP</span></td>
+      </tr>
+    `;
+
+    // Exibir laudo
+    document.getElementById('popupContainer').style.display = 'none';
+    document.getElementById('certificateContainer').style.display = 'block';
+    document.querySelector('.container').style.overflow = 'hidden';
+  }
 
   function showLoading(show) {
     document.getElementById('loading').style.display = show ? 'block' : 'none';
@@ -599,6 +604,7 @@
     document.getElementById('errorMessage').style.display = 'block';
   }
 </script>
+
 
 
 
