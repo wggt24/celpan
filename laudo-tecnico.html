@@ -472,8 +472,8 @@
     </div>
   </div>
 
-  <script>
-  const API_URL = 'https://script.google.com/macros/s/AKfycbwXD_LIit80umqVvBPS071fTwv3tKMl_vUjZlsuvZ-YlsRVUp0YCCJcBgON260f9ry2kA/exec';
+ <script>
+  const API_URL = 'https://script.google.com/macos/s/AKfycbwXD_LIit80umqVvBPS071fTwv3tKMl_vUjZlsuvZ-YlsRVUp0YCCJcBgON260f9ry2kA/exec';
 
   document.getElementById('generateBtn').addEventListener('click', async function () {
     const numeroLaudo = document.getElementById('laudoNumber').value.trim();
@@ -496,15 +496,14 @@
 
     try {
       // SALVAR DADOS DO CLIENTE
-     const saveUrl = `${API_URL}?action=salvarDadosCliente` +
-      `&nome=${encodeURIComponent(nome)}` +
-      `&cnpj=${encodeURIComponent(cnpj)}` +
-      `&zap=${encodeURIComponent(zap)}` +
-      `&email=${encodeURIComponent(email)}`;
-    
-    const saveResponse = await fetch(saveUrl);
-    const saveResult = await saveResponse.json();
+      const saveUrl = `${API_URL}?action=salvarDadosCliente` +
+        `&nome=${encodeURIComponent(nome)}` +
+        `&cnpj=${encodeURIComponent(cnpj)}` +
+        `&zap=${encodeURIComponent(zap)}` +
+        `&email=${encodeURIComponent(email)}`;
 
+      const saveResponse = await fetch(saveUrl);
+      const saveResult = await saveResponse.json();
 
       if (!saveResult.success) {
         showLoading(false);
@@ -517,6 +516,10 @@
         `${API_URL}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`
       );
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const result = await response.json();
       showLoading(false);
 
@@ -527,6 +530,7 @@
 
       const data = result.data;
 
+      // Preencher os dados no laudo
       document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
       document.getElementById('productName').textContent = data.produto;
       document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
@@ -535,6 +539,7 @@
       document.getElementById('produto').textContent = data.produto;
       document.getElementById('classe').textContent = data.classe;
 
+      // Preencher tabela de equipamentos
       document.getElementById('equipmentTableBody').innerHTML = `
         <tr><td>Kilovoltímetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
         <tr><td>Milliamperímetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
@@ -543,6 +548,7 @@
         <tr><td>Trena</td><td>PAN-TR-05</td><td>PAN-TR-105</td><td>${data.validade}</td></tr>
       `;
 
+      // Preencher tabela de dados
       document.getElementById('dataTableBody').innerHTML = `
         <tr>
           <td>N.A</td>
@@ -556,6 +562,7 @@
         </tr>
       `;
 
+      // Exibir o laudo
       document.getElementById('popupContainer').style.display = 'none';
       document.getElementById('certificateContainer').style.display = 'block';
       document.querySelector('.container').style.overflow = 'hidden';
@@ -576,6 +583,7 @@
     document.getElementById('errorMessage').style.display = 'block';
   }
 </script>
+
 
 
 </body>
