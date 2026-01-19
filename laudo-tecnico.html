@@ -472,202 +472,125 @@
     </div>
   </div>
 
- function doGet(e) {
-  if (!e || !e.parameter || !e.parameter.action) {
-    return HtmlService.createHtmlOutputFromFile('index')
-      .setTitle('Laudo Técnico')
-      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
-  }
+ <script>
+  const API_URL = 'https://script.google.com/macros/s/AKfycbwXD_LIit80umqVvBPS071fTwv3tKMl_vUjZlsuvZ-YlsRVUp0YCCJcBgON260f9ry2kA/exec';
 
-  if (e.parameter.action === 'buscarLaudoPorNumero') {
-    return jsonResponse(buscarLaudoPorNumero(e.parameter.numeroLaudo));
-  }
+  document.getElementById('generateBtn').addEventListener('click', async function() {
+    const numeroLaudo = document.getElementById('laudoNumber').value.trim();
+    const nome = document.getElementById('nome').value.trim();
+    const cnpj = document.getElementById('cnpj').value.trim();
+    const zap = document.getElementById('whatsapp').value.trim();
+    const email = document.getElementById('email').value.trim();
 
-  if (e.parameter.action === 'testarConexao') {
-    return jsonResponse({
-      success: true,
-      message: 'Conexão realizada com sucesso'
-    });
-  }
+    if (!numeroLaudo) {
+      showError('Digite o número do laudo.');
+      return;
+    }
 
-  return jsonResponse({
-    success: false,
-    message: 'Ação inválida'
-  });
-}
+    if (!nome || !cnpj || !zap || !email) {
+      showError('Preencha todos os campos do cliente.');
+      return;
+    }
 
-function doPost(e) {
-  try {
-    if (!e || !e.postData || !e.postData.contents) {
-      return jsonResponse({
-        success: false,
-        message: 'Requisição inválida'
+    showLoading(true);
+
+    try {
+      // SALVAR DADOS DO CLIENTE (usando POST)
+      const saveResponse = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'salvarDadosCliente',
+          nome: nome,
+          cnpj: cnpj,
+          zap: zap,
+          email: email
+        }),
       });
-    }
 
-    const data = JSON.parse(e.postData.contents);
+      const saveResult = await saveResponse.json();
 
-    if (data.action === 'salvarDadosCliente') {
-      return jsonResponse(salvarDadosCliente(data));
-    }
-
-    return jsonResponse({
-      success: false,
-      message: 'Ação inválida'
-    });
-
-  } catch (error) {
-    return jsonResponse({
-      success: false,
-      message: 'Erro no servidor: ' + error.message
-    });
-  }
-}
-
-function jsonResponse(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHeaders({
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST'
-    });
-}
-
-/* ===============================
-   NÃO MEXER – JÁ FUNCIONA
-================================ */
-function salvarDadosCliente(data) {
-  try {
-    const spreadsheetId = '1UkPfXrM0RfMGcAOy-tG9JwFtuBS6HNSiKwmFE8SfK-4';
-    const sheetName = 'dados_cliente';
-
-    const ss = SpreadsheetApp.openById(spreadsheetId);
-    const sheet = ss.getSheetByName(sheetName);
-
-    if (!sheet) {
-      throw new Error('Aba "dados_cliente" não encontrada');
-    }
-
-    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    const colunas = {};
-    headers.forEach((h, i) => colunas[String(h).trim().toLowerCase()] = i + 1);
-
-    const requiredColumns = ['nome', 'cnpj', 'zap', 'email'];
-    const missing = requiredColumns.filter(c => !colunas[c]);
-
-    if (missing.length) {
-      throw new Error('Colunas não encontradas: ' + missing.join(', '));
-    }
-
-    const newRow = [data.nome, data.cnpj, data.zap, data.email];
-    sheet.appendRow(newRow);
-
-    return {
-      success: true,
-      message: 'Dados salvos com sucesso!'
-    };
-  } catch (error) {
-    return {
-      success: false,
-      message: 'Erro ao salvar dados: ' + error.message
-    };
-  }
-}
-
-/* ===============================
-   BUSCAR LAUDO – AJUSTADO
-================================ */
-function buscarLaudoPorNumero(numeroRastreabilidade) {
-  try {
-    if (!numeroRastreabilidade) {
-      return {
-        success: false,
-        message: 'Número do laudo não informado'
-      };
-    }
-
-    const spreadsheetId = '1UkPfXfXrM0RfMGcAOy-tG9JwFtuBS6HNSiKwmFE8SfK-4';
-    const sheetName = 'Produtos-Laudo';
-
-    const ss = SpreadsheetApp.openById(spreadsheetId);
-    const sheet = ss.getSheetByName(sheetName);
-
-    if (!sheet) {
-      return {
-        success: false,
-        message: 'Aba "Produtos-Laudo" não encontrada'
-      };
-    }
-
-    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    const colunas = {};
-    headers.forEach((h, i) => colunas[String(h).trim()] = i + 1);
-
-    const requiredColumns = [
-      'Produto',
-      'Rastreabilidade',
-      'Mes_Ensaio',
-      'Proximo_Ensaio',
-      'Certif-Calibração-1',
-      'Validade-Certificação-1',
-      'Classe',
-      'Kv_Aplicado'
-    ];
-
-    const missing = requiredColumns.filter(c => !colunas[c]);
-    if (missing.length) {
-      return {
-        success: false,
-        message: 'Colunas não encontradas: ' + missing.join(', ')
-      };
-    }
-
-    const finder = sheet
-      .getRange(2, colunas['Rastreabilidade'], sheet.getLastRow() - 1)
-      .createTextFinder(String(numeroRastreabilidade))
-      .matchEntireCell(true)
-      .findNext();
-
-    if (!finder) {
-      return {
-        success: false,
-        message: 'Laudo não encontrado'
-      };
-    }
-
-    const rowIndex = finder.getRow();
-    const row = sheet.getRange(rowIndex, 1, 1, sheet.getLastColumn()).getValues()[0];
-
-    return {
-      success: true,
-      data: {
-        rastreabilidade: String(row[colunas['Rastreabilidade'] - 1]),
-        produto: String(row[colunas['Produto'] - 1] || ''),
-        mesEnsaio: formatarData(row[colunas['Mes_Ensaio'] - 1]),
-        proximoEnsaio: formatarData(row[colunas['Proximo_Ensaio'] - 1]),
-        classe: String(row[colunas['Classe'] - 1] || ''),
-        kvAplicado: String(row[colunas['Kv_Aplicado'] - 1] || ''),
-        certifCalibracao: String(row[colunas['Certif-Calibração-1'] - 1] || ''),
-        validade: formatarData(row[colunas['Validade-Certificação-1'] - 1])
+      if (!saveResult.success) {
+        showLoading(false);
+        showError(saveResult.message);
+        return;
       }
-    };
 
-  } catch (error) {
-    return {
-      success: false,
-      message: 'Erro ao buscar laudo: ' + error.message
-    };
-  }
-}
+      // BUSCAR LAUDO (usando GET)
+      const response = await fetch(
+        `${API_URL}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`
+      );
 
-function formatarData(valor) {
-  if (!valor) return '';
-  if (Object.prototype.toString.call(valor) === '[object Date]') {
-    return Utilities.formatDate(valor, 'America/Sao_Paulo', 'dd/MM/yyyy');
+      if (!response.ok) {
+        throw new Error(`Erro ao buscar laudo: ${response.status}`);
+      }
+
+      const result = await response.json();
+      showLoading(false);
+
+      if (!result.success) {
+        showError(result.message);
+        return;
+      }
+
+      const data = result.data;
+
+      // Preencher os dados no laudo
+      document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
+      document.getElementById('productName').textContent = data.produto;
+      document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
+      document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
+      document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
+      document.getElementById('produto').textContent = data.produto;
+      document.getElementById('classe').textContent = data.classe;
+
+      // Preencher tabela de equipamentos
+      document.getElementById('equipmentTableBody').innerHTML = `
+        <tr><td>Kilovoltímetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
+        <tr><td>Milliamperímetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
+        <tr><td>Cronômetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
+        <tr><td>Thermohigrômetro</td><td>CEL-TH-02</td><td>1803660</td><td>${data.validade}</td></tr>
+        <tr><td>Trena</td><td>PAN-TR-05</td><td>PAN-TR-105</td><td>${data.validade}</td></tr>
+      `;
+
+      // Preencher tabela de dados
+      document.getElementById('dataTableBody').innerHTML = `
+        <tr>
+          <td>N.A</td>
+          <td>${data.classe}</td>
+          <td>1000x1000</td>
+          <td>${data.rastreabilidade}</td>
+          <td>0,8</td>
+          <td>${data.kvAplicado}</td>
+          <td>&lt; 16</td>
+          <td><span class="status-badge status-ap">AP</span></td>
+        </tr>
+      `;
+
+      // Exibir o laudo
+      document.getElementById('popupContainer').style.display = 'none';
+      document.getElementById('certificateContainer').style.display = 'block';
+      document.querySelector('.container').style.overflow = 'hidden';
+
+    } catch (err) {
+      showLoading(false);
+      showError('Erro: ' + err.message);
+    }
+  });
+
+  function showLoading(show) {
+    document.getElementById('loading').style.display = show ? 'block' : 'none';
+    document.getElementById('errorMessage').style.display = 'none';
   }
-  return String(valor);
-}
+
+  function showError(msg) {
+    document.getElementById('errorMessage').textContent = msg;
+    document.getElementById('errorMessage').style.display = 'block';
+  }
+</script>
+
 
 </body>
 </html>
