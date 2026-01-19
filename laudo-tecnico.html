@@ -475,7 +475,7 @@
 <script>
   const API_URL = 'https://script.google.com/macros/s/AKfycbwXD_LIit80umqVvBPS071fTwv3tKMl_vUjZlsuvZ-YlsRVUp0YCCJcBgON260f9ry2kA/exec';
 
-  document.getElementById('generateBtn').addEventListener('click', async function() {
+  document.getElementById('generateBtn').addEventListener('click', async function () {
     const numeroLaudo = document.getElementById('laudoNumber').value.trim();
     const nome = document.getElementById('nome').value.trim();
     const cnpj = document.getElementById('cnpj').value.trim();
@@ -486,6 +486,7 @@
       showError('Digite o número do laudo.');
       return;
     }
+
     if (!nome || !cnpj || !zap || !email) {
       showError('Preencha todos os campos do cliente.');
       return;
@@ -494,27 +495,31 @@
     showLoading(true);
 
     try {
-      // Salvar dados do cliente
+      // SALVAR DADOS DO CLIENTE
       const saveResponse = await fetch(API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'salvarDadosCliente',
-          nome: nome,
-          cnpj: cnpj,
-          zap: zap,
-          email: email
+          nome,
+          cnpj,
+          zap,
+          email
         })
       });
+
       const saveResult = await saveResponse.json();
+
       if (!saveResult.success) {
         showLoading(false);
         showError(saveResult.message);
         return;
       }
 
-      // Buscar laudo pelo número
-      const response = await fetch(`${API_URL}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`);
+      // BUSCAR LAUDO
+      const response = await fetch(
+        `${API_URL}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`
+      );
+
       const result = await response.json();
       showLoading(false);
 
@@ -525,68 +530,20 @@
 
       const data = result.data;
 
-      // Preencher cabeçalho
       document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
       document.getElementById('productName').textContent = data.produto;
-
-      // Preencher informações do ensaio
       document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
       document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
       document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
       document.getElementById('produto').textContent = data.produto;
       document.getElementById('classe').textContent = data.classe;
 
-      // Preencher equipamentos
       document.getElementById('equipmentTableBody').innerHTML = `
-        <tr>
-          <td>Kilovoltímetro</td>
-          <td>CEL-HP-01</td>
-          <td>${data.certifCalibracao}</td>
-          <td>${data.validade}</td>
-        </tr>
-        <tr>
-          <td>Milliamperímetro</td>
-          <td>CEL-HP-01</td>
-          <td>${data.certifCalibracao}</td>
-          <td>${data.validade}</td>
-        </tr>
-        <tr>
-          <td>Cronômetro</td>
-          <td>CEL-HP-01</td>
-          <td>${data.certifCalibracao}</td>
-          <td>${data.validade}</td>
-        </tr>
-        <tr>
-          <td>Thermohigrômetro</td>
-          <td>CEL-TH-02</td>
-          <td>1803660</td>
-          <td>${data.validade}</td>
-        </tr>
-        <tr>
-          <td>Trena</td>
-          <td>PAN-TR-05</td>
-          <td>PAN-TR-105</td>
-          <td>${data.validade}</td>
-        </tr>
-      `;
-
-      // Preencher condições do ensaio
-      document.getElementById('temperatura').textContent = '23 ºC';
-      document.getElementById('tempoEnsaio').textContent = '1 minuto';
-      document.getElementById('umidade').textContent = '70 %';
-
-      // Preencher resultados
-      document.getElementById('dataTableHeader').innerHTML = `
-        <tr>
-          <th>Usuário/Localização</th>
-          <th>Classe</th>
-          <th>Tamanho (mm)</th>
-          <th>Nº de Série</th>
-          <th>Corrente de Fuga (mA)</th>
-          <th>kV Aplicado</th>
-          <th>Referência (mA)</th>
-          <th>Status</th>
-        </tr>
+        <tr><td>Kilovoltímetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
+        <tr><td>Milliamperímetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
+        <tr><td>Cronômetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
+        <tr><td>Thermohigrômetro</td><td>CEL-TH-02</td><td>1803660</td><td>${data.validade}</td></tr>
+        <tr><td>Trena</td><td>PAN-TR-05</td><td>PAN-TR-105</td><td>${data.validade}</td></tr>
       `;
 
       document.getElementById('dataTableBody').innerHTML = `
@@ -602,7 +559,6 @@
         </tr>
       `;
 
-      // Exibir laudo
       document.getElementById('popupContainer').style.display = 'none';
       document.getElementById('certificateContainer').style.display = 'block';
       document.querySelector('.container').style.overflow = 'hidden';
@@ -613,20 +569,9 @@
     }
   });
 
-  function voltarConsulta() {
-    document.getElementById('certificateContainer').style.display = 'none';
-    document.getElementById('popupContainer').style.display = 'flex';
-    document.getElementById('laudoNumber').value = '';
-    document.getElementById('nome').value = '';
-    document.getElementById('cnpj').value = '';
-    document.getElementById('whatsapp').value = '';
-    document.getElementById('email').value = '';
-  }
-
   function showLoading(show) {
     document.getElementById('loading').style.display = show ? 'block' : 'none';
     document.getElementById('errorMessage').style.display = 'none';
-    document.getElementById('successMessage').style.display = 'none';
   }
 
   function showError(msg) {
@@ -634,6 +579,7 @@
     document.getElementById('errorMessage').style.display = 'block';
   }
 </script>
+
 
 </body>
 </html>
