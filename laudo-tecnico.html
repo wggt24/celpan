@@ -213,7 +213,7 @@
 </style>
 
 </head>
-  <body>
+<body>
     <div class="container">
         <!-- Popup inicial -->
         <div class="popup-container" id="popupContainer">
@@ -223,12 +223,30 @@
                     <label for="laudoNumber">Número do Laudo (Rastreabilidade)</label>
                     <input type="text" id="laudoNumber" placeholder="Digite o número do laudo" autocomplete="off">
                 </div>
+                <!-- Novos campos -->
+                <div class="input-group">
+                    <label for="nome">Nome</label>
+                    <input type="text" id="nome" placeholder="Digite o nome" autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label for="cnpj">CNPJ</label>
+                    <input type="text" id="cnpj" placeholder="Digite o CNPJ" autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label for="whatsapp">WhatsApp</label>
+                    <input type="text" id="whatsapp" placeholder="Digite o WhatsApp" autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" placeholder="Digite o e-mail" autocomplete="off">
+                </div>
                 <div class="error-message" id="errorMessage"></div>
                 <div class="success-message" id="successMessage"></div>
                 <div class="loading" id="loading">
                     <p>Buscando dados...</p>
                 </div>
                 <button class="btn" id="generateBtn">Gerar Laudo</button>
+                <button class="btn" id="submitClientData">Salvar Dados do Cliente</button>
             </div>
         </div>
 
@@ -367,6 +385,7 @@
             </div>
         </div>
     </div>
+
 
     <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbwXD_LIit80umqVvBPS071fTwv3tKMl_vUjZlsuvZ-YlsRVUp0YCCJcBgON260f9ry2kA/exec';
