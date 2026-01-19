@@ -207,180 +207,345 @@
     }
 
     .container {
-      box-shadow: none;
       padding: 8mm;
     }
   }
 </style>
 
 </head>
-<body>
-  <div class="container">
+  <body>
+    <div class="container">
+        <!-- Popup inicial -->
+        <div class="popup-container" id="popupContainer">
+            <div class="popup">
+                <h2>Consulta de Laudo</h2>
+                <div class="input-group">
+                    <label for="laudoNumber">Número do Laudo (Rastreabilidade)</label>
+                    <input type="text" id="laudoNumber" placeholder="Digite o número do laudo" autocomplete="off">
+                </div>
+                <div class="error-message" id="errorMessage"></div>
+                <div class="success-message" id="successMessage"></div>
+                <div class="loading" id="loading">
+                    <p>Buscando dados...</p>
+                </div>
+                <button class="btn" id="generateBtn">Gerar Laudo</button>
+            </div>
+        </div>
 
-    <!-- Popup inicial -->
-    <div class="popup-container" id="popupContainer">
-  <div class="popup" style="
-    width: 420px;
-    padding: 26px;
-    font-size: 15px;
-  ">
-    <h2 style="margin-bottom: 18px;">Consulta de Laudo</h2>
+        <!-- Certificado de Laudo Técnico -->
+        <div class="certificate-container" id="certificateContainer">
+            <div class="certificate-header">
+                <div class="logo-container">
+                    <img id="companyLogo" src="https://www.celpan.com.br/wp-content/uploads/2021/12/logo.png" alt="Logo Celpan">
+                </div>
+                <h1 class="certificate-title">Laudo Técnico</h1>
+                <div class="certificate-subtitle">
+                    EPI / EPC: <span id="productName"></span>
+                </div>
+                <div class="certificate-number" style="display: none;">
+                    NÚM: <span id="numeroLaudo"></span>
+                </div>
+            </div>
 
-    <!-- DADOS DO CLIENTE -->
-    <div class="input-group">
-      <label>Nome</label>
-      <input type="text" id="nome" placeholder="Nome completo">
+            <!-- Informações do ensaio -->
+            <div class="section-title">Informações do Ensaio</div>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-item">
+                        <span class="info-label">Número de Rastreabilidade:</span>
+                        <span class="info-value" id="rastreabilidade"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Mês do Ensaio:</span>
+                        <span class="info-value" id="mesEnsaio"></span>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-item">
+                        <span class="info-label">EPI/EPC:</span>
+                        <span class="info-value" id="produto"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Classe:</span>
+                        <span class="info-value" id="classe"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Próximo Ensaio:</span>
+                        <span class="info-value" id="proximoEnsaio"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Equipamentos utilizados -->
+            <div class="section-title">Equipamentos Utilizados</div>
+            <div class="equipment-section">
+                <table class="equipment-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Código</th>
+                            <th>Certif. Calibração</th>
+                            <th>Validade</th>
+                        </tr>
+                    </thead>
+                    <tbody id="equipmentTableBody">
+                        <!-- Dinâmico -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Condições do ensaio -->
+            <div class="section-title">Condições do Ensaio</div>
+            <div class="info-grid">
+                <div class="info-card" style="grid-column: 1 / -1;">
+                    <div class="info-item">
+                        <span class="info-label">Temperatura:</span>
+                        <span class="info-value" id="temperatura"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Tempo de Ensaio:</span>
+                        <span class="info-value" id="tempoEnsaio"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Umidade:</span>
+                        <span class="info-value" id="umidade"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resultados dos ensaios -->
+            <div class="section-title">Resultados dos Ensaios</div>
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead id="dataTableHeader">
+                        <!-- Dinâmico -->
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- Dinâmico -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Legenda e normas -->
+            <div class="legenda-normas">
+                <div style="margin-bottom: 4px;">
+                    <strong>Legenda:</strong> AP = Aprovado | NST = Não Suportou Tensão | RV = Reprovado Visual | FD = Fora do Dimensional
+                </div>
+                <div>
+                    <strong>Normas Referenciadas:</strong> NR-10 / ASTM D-1048-14 / ASTM D178-19 / ASTM F479-06 / NBR-14039/2005
+                </div>
+            </div>
+
+            <!-- Assinaturas -->
+            <div class="signatures-section">
+                <div class="signature-box">
+                    <img src="https://raw.githubusercontent.com/ticelpan1670-droid/celpan/main/imagens/assinatura-rogerio.png" alt="Assinatura Rogério Percílio Figueiredo">
+                    <div class="signature-name">Rogério Percílio Figueiredo</div>
+                    <div class="signature-title">Responsável Técnico</div>
+                    <div class="signature-id">CREA: 5060011343</div>
+                </div>
+                <div class="signature-box">
+                    <img src="https://raw.githubusercontent.com/ticelpan1670-droid/celpan/main/imagens/assinatura-cleber.png" alt="Assinatura Cleber Rodrigo Martins">
+                    <div class="signature-name">Cleber Rodrigo Martins</div>
+                    <div class="signature-title">Coordenador de Qualidade</div>
+                    <div class="signature-id">CREA: 5062345678</div>
+                </div>
+            </div>
+
+            <!-- Rodapé -->
+            <div class="footer">
+                <div><strong>CELPAN - COBRA BRASIL SERVIÇOS DE COMUNICAÇÃO E ENERGIA S.A.</strong></div>
+                <div>CNPJ: 12.345.678/0001-99</div>
+                <div>Estrada da Aldeinha, 1670 - Jardim Marilu - Carapicuíba, São Paulo - CEP: 06343-040</div>
+                <div>Contato: (11) 3229-6699 / 3228-6015 / 2967-7040</div>
+            </div>
+
+            <!-- Controles -->
+            <div class="controls">
+                <button class="btn" onclick="voltarConsulta()">Nova Consulta</button>
+                <button class="btn btn-print" onclick="window.print()">Imprimir Laudo</button>
+            </div>
+        </div>
     </div>
 
-    <div class="input-group">
-      <label>CNPJ</label>
-      <input type="text" id="cnpj" placeholder="00.000.000/0000-00">
-    </div>
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwXD_LIit80umqVvBPS071fTwv3tKMl_vUjZlsuvZ-YlsRVUp0YCCJcBgON260f9ry2kA/exec';
 
-    <div class="input-group">
-      <label>WhatsApp</label>
-      <input type="text" id="zap" placeholder="DDD + número">
-    </div>
+        // ===============================
+        // GERAR LAUDO
+        // ===============================
+        document.getElementById('generateBtn').addEventListener('click', async function() {
+            const numeroLaudo = document.getElementById('laudoNumber').value.trim();
 
-    <div class="input-group">
-      <label>Email</label>
-      <input type="email" id="email" placeholder="email@empresa.com">
-    </div>
+            if (!numeroLaudo) {
+                showError('Digite o número do laudo.');
+                return;
+            }
 
-    <hr style="margin:18px 0; opacity:.3;">
+            showLoading(true);
 
-    <!-- LAUDO -->
-    <div class="input-group">
-      <label for="laudoNumber">Número do Laudo (Rastreabilidade)</label>
-      <input type="text" id="laudoNumber" placeholder="Digite o número do laudo">
-    </div>
+            try {
+                const response = await fetch(`${API_URL}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`);
+                const result = await response.json();
 
-    <div class="error-message" id="errorMessage"></div>
-    <div class="success-message" id="successMessage"></div>
+                showLoading(false);
 
-    <div class="loading" id="loading">
-      <p>Processando...</p>
-    </div>
+                if (!result.success) {
+                    showError(result.message);
+                    return;
+                }
 
-    <button class="btn" id="generateBtn" style="margin-top:10px;">
-      Gerar Laudo
-    </button>
-  </div>
-</div>
+                const data = result.data;
 
+                // ===============================
+                // CABEÇALHO
+                // ===============================
+                document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
+                document.getElementById('productName').textContent = data.produto;
 
-    <!-- RESTANTE DO SEU HTML DO LAUDO -->
-    <!-- (NADA ALTERADO AQUI) -->
+                // ===============================
+                // INFORMAÇÕES DO ENSAIO
+                // ===============================
+                document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
+                document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
+                document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
+                document.getElementById('produto').textContent = data.produto;
+                document.getElementById('classe').textContent = data.classe;
 
-  </div>
+                // ===============================
+                // EQUIPAMENTOS
+                // ===============================
+                document.getElementById('equipmentTableBody').innerHTML = `
+                    <tr>
+                        <td>Kilovoltímetro</td>
+                        <td>CEL-HP-01</td>
+                        <td>${data.certifCalibracao}</td>
+                        <td>${data.validade}</td>
+                    </tr>
+                    <tr>
+                        <td>Milliamperímetro</td>
+                        <td>CEL-HP-01</td>
+                        <td>${data.certifCalibracao}</td>
+                        <td>${data.validade}</td>
+                    </tr>
+                    <tr>
+                        <td>Cronômetro</td>
+                        <td>CEL-HP-01</td>
+                        <td>${data.certifCalibracao}</td>
+                        <td>${data.validade}</td>
+                    </tr>
+                    <tr>
+                        <td>Thermohigrômetro</td>
+                        <td>CEL-TH-02</td>
+                        <td>1803660</td>
+                        <td>${data.validade}</td>
+                    </tr>
+                    <tr>
+                        <td>Trena</td>
+                        <td>PAN-TR-05</td>
+                        <td>PAN-TR-105</td>
+                        <td>${data.validade}</td>
+                    </tr>
+                `;
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
+                // ===============================
+                // CONDIÇÕES DO ENSAIO
+                // ===============================
+                document.getElementById('temperatura').textContent = '23 ºC';
+                document.getElementById('tempoEnsaio').textContent = '1 minuto';
+                document.getElementById('umidade').textContent = '70 %';
 
-  const API_LAUDO = 'https://script.google.com/macros/s/AKfycbwXD_LIit80umqVvBPS071fTwv3tKMl_vUjZlsuvZ-YlsRVUp0YCCJcBgON260f9ry2kA/exec';
-  const API_CLIENTE = 'https://script.google.com/macros/s/AKfycbxiVkjAdyBUoGEtoUxqWcjfgWEPZpOyWgSN1TmmhTLRX15F2L6PLiL9E3ElnIdDL24fBQ/exec';
+                // ===============================
+                // RESULTADOS
+                // ===============================
+                document.getElementById('dataTableHeader').innerHTML = `
+                    <tr>
+                        <th>Usuário/Localização</th>
+                        <th>Classe</th>
+                        <th>Tamanho (mm)</th>
+                        <th>Nº de Série</th>
+                        <th>Corrente de Fuga (mA)</th>
+                        <th>kV Aplicado</th>
+                        <th>Referência (mA)</th>
+                        <th>Status</th>
+                    </tr>
+                `;
 
-  // ===============================
-  // HELPERS SEGUROS
-  // ===============================
-  function el(id) {
-    return document.getElementById(id);
-  }
+                document.getElementById('dataTableBody').innerHTML = `
+                    <tr>
+                        <td>N.A</td>
+                        <td>${data.classe}</td>
+                        <td>1000x1000</td>
+                        <td>${data.rastreabilidade}</td>
+                        <td>0,8</td>
+                        <td>${data.kvAplicado}</td>
+                        <td>&lt; 16</td>
+                        <td><span class="status-badge status-ap">AP</span></td>
+                    </tr>
+                `;
 
-  function setText(id, value) {
-    const e = el(id);
-    if (e) e.textContent = value ?? '';
-  }
+                // ===============================
+                // EXIBIR LAUDO
+                // ===============================
+                document.getElementById('popupContainer').style.display = 'none';
+                document.getElementById('certificateContainer').style.display = 'block';
+                document.querySelector('.container').style.overflow = 'hidden';
 
-  function showLoading(show) {
-    if (el('loading')) el('loading').style.display = show ? 'block' : 'none';
-    if (el('errorMessage')) el('errorMessage').style.display = 'none';
-    if (el('successMessage')) el('successMessage').style.display = 'none';
-  }
+            } catch (err) {
+                showLoading(false);
+                showError('Erro ao buscar dados: ' + err.message);
+            }
+        });
 
-  function showError(msg) {
-    if (el('errorMessage')) {
-      el('errorMessage').textContent = msg;
-      el('errorMessage').style.display = 'block';
-    }
-  }
+        // ===============================
+        // TESTAR CONEXÃO
+        // ===============================
+        document.getElementById('testBtn').addEventListener('click', async function() {
+            showLoading(true);
 
-  // ===============================
-  // GERAR LAUDO
-  // ===============================
-  const btn = el('generateBtn');
-  if (!btn) return; // segurança absoluta
+            try {
+                const response = await fetch(`${API_URL}?action=testarConexao`);
+                const result = await response.json();
 
-  btn.addEventListener('click', async function () {
+                showLoading(false);
 
-    const numeroLaudo = el('laudoNumber')?.value.trim() || '';
+                if (!result.success) {
+                    showError(result.message);
+                    return;
+                }
 
-    const nome  = el('nome')?.value || '';
-    const cnpj  = el('cnpj')?.value || '';
-    const zap   = el('zap')?.value || '';
-    const email = el('email')?.value || '';
+                document.getElementById('successMessage').textContent = result.message;
+                document.getElementById('successMessage').style.display = 'block';
 
-    if (!numeroLaudo) {
-      showError('Digite o número do laudo.');
-      return;
-    }
+            } catch (err) {
+                showLoading(false);
+                showError('Erro ao testar conexão: ' + err.message);
+            }
+        });
 
-    showLoading(true);
+        // ===============================
+        // VOLTAR CONSULTA
+        // ===============================
+        function voltarConsulta() {
+            document.getElementById('certificateContainer').style.display = 'none';
+            document.getElementById('popupContainer').style.display = 'flex';
+            document.getElementById('laudoNumber').value = '';
+        }
 
-    try {
-      // ===============================
-      // 1️⃣ INSERE CLIENTE (OK / NÃO MEXER)
-      // ===============================
-      await fetch(
-        `${API_CLIENTE}?action=inserirCliente`
-        + `&nome=${encodeURIComponent(nome)}`
-        + `&cnpj=${encodeURIComponent(cnpj)}`
-        + `&zap=${encodeURIComponent(zap)}`
-        + `&email=${encodeURIComponent(email)}`
-      );
+        // ===============================
+        // HELPERS
+        // ===============================
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
 
-      // ===============================
-      // 2️⃣ BUSCA LAUDO (LÓGICA ORIGINAL)
-      // ===============================
-      const response = await fetch(
-        `${API_LAUDO}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`
-      );
-
-      const result = await response.json();
-      showLoading(false);
-
-      if (!result.success) {
-        showError(result.message);
-        return;
-      }
-
-      const data = result.data;
-
-      // ===============================
-      // PREENCHIMENTO DO LAUDO (SEM QUEBRAR)
-      // ===============================
-      setText('numeroLaudo', data.rastreabilidade);
-      setText('productName', data.produto);
-      setText('rastreabilidade', data.rastreabilidade);
-      setText('mesEnsaio', data.mesEnsaio);
-      setText('proximoEnsaio', data.proximoEnsaio);
-      setText('produto', data.produto);
-      setText('classe', data.classe);
-
-      // ===============================
-      // EXIBIR LAUDO
-      // ===============================
-      if (el('popupContainer')) el('popupContainer').style.display = 'none';
-      if (el('certificateContainer')) el('certificateContainer').style.display = 'block';
-
-    } catch (err) {
-      showLoading(false);
-      showError('Erro ao buscar dados: ' + err.message);
-    }
-  });
-
-});
-</script>
-
+        function showError(msg) {
+            document.getElementById('errorMessage').textContent = msg;
+            document.getElementById('errorMessage').style.display = 'block';
+        }
+    </script>
 </body>
+
 </html>
