@@ -530,6 +530,7 @@
 
       const data = result.data;
 
+      // Dentro do bloco try, após receber os dados do laudo (result.data):
       document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
       document.getElementById('productName').textContent = data.produto;
       document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
@@ -537,7 +538,11 @@
       document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
       document.getElementById('produto').textContent = data.produto;
       document.getElementById('classe').textContent = data.classe;
-
+      document.getElementById('temperatura').textContent = "25°C"; // Exemplo fixo (substitua por dados reais)
+      document.getElementById('tempoEnsaio').textContent = "10 min"; // Exemplo fixo (substitua por dados reais)
+      document.getElementById('umidade').textContent = "60%"; // Exemplo fixo (substitua por dados reais)
+      
+      // Preencher tabela de equipamentos
       document.getElementById('equipmentTableBody').innerHTML = `
         <tr><td>Kilovoltímetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
         <tr><td>Milliamperímetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
@@ -545,7 +550,21 @@
         <tr><td>Thermohigrômetro</td><td>CEL-TH-02</td><td>1803660</td><td>${data.validade}</td></tr>
         <tr><td>Trena</td><td>PAN-TR-05</td><td>PAN-TR-105</td><td>${data.validade}</td></tr>
       `;
-
+      
+      // Preencher tabela de resultados dos ensaios
+      document.getElementById('dataTableHeader').innerHTML = `
+        <tr>
+          <th>N.A</th>
+          <th>Classe</th>
+          <th>Dimensões</th>
+          <th>Rastreabilidade</th>
+          <th>Espessura (mm)</th>
+          <th>KV Aplicado</th>
+          <th>Corrente (µA)</th>
+          <th>Resultado</th>
+        </tr>
+      `;
+      
       document.getElementById('dataTableBody').innerHTML = `
         <tr>
           <td>N.A</td>
@@ -558,6 +577,7 @@
           <td><span class="status-badge status-ap">AP</span></td>
         </tr>
       `;
+
 
       document.getElementById('popupContainer').style.display = 'none';
       document.getElementById('certificateContainer').style.display = 'block';
@@ -578,7 +598,18 @@
     document.getElementById('errorMessage').textContent = msg;
     document.getElementById('errorMessage').style.display = 'block';
   }
-</script>
+   
+  function voltarConsulta() {
+      document.getElementById('popupContainer').style.display = 'flex';
+      document.getElementById('certificateContainer').style.display = 'none';
+      document.getElementById('laudoNumber').value = '';
+      document.getElementById('nome').value = '';
+      document.getElementById('cnpj').value = '';
+      document.getElementById('whatsapp').value = '';
+      document.getElementById('email').value = '';
+    }
+    
+    </script>
 
 
 
