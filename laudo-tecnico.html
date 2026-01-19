@@ -473,193 +473,112 @@
   </div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwXD_LIit80umqVvBPS071fTwv3tKMl_vUjZlsuvZ-YlsRVUp0YCCJcBgON260f9ry2kA/exec';
+  const API_URL = 'https://script.google.com/macros/s/AKfycbwXD_LIit80umqVvBPS071fTwv3tKMl_vUjZlsuvZ-YlsRVUp0YCCJcBgON260f9ry2kA/exec';
 
-    // ===============================
-    // GERAR LAUDO E SALVAR DADOS DO CLIENTE
-    // ===============================
-    document.getElementById('generateBtn').addEventListener('click', async function() {
-      const numeroLaudo = document.getElementById('laudoNumber').value.trim();
-      const nome = document.getElementById('nome').value.trim();
-      const cnpj = document.getElementById('cnpj').value.trim();
-      const zap = document.getElementById('whatsapp').value.trim();
-      const email = document.getElementById('email').value.trim();
+  document.getElementById('generateBtn').addEventListener('click', async function () {
+    const numeroLaudo = document.getElementById('laudoNumber').value.trim();
+    const nome = document.getElementById('nome').value.trim();
+    const cnpj = document.getElementById('cnpj').value.trim();
+    const zap = document.getElementById('whatsapp').value.trim();
+    const email = document.getElementById('email').value.trim();
 
-      if (!numeroLaudo) {
-        showError('Digite o número do laudo.');
+    if (!numeroLaudo) {
+      showError('Digite o número do laudo.');
+      return;
+    }
+
+    if (!nome || !cnpj || !zap || !email) {
+      showError('Preencha todos os campos do cliente.');
+      return;
+    }
+
+    showLoading(true);
+
+    try {
+      // SALVAR DADOS DO CLIENTE
+      const saveResponse = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'salvarDadosCliente',
+          nome,
+          cnpj,
+          zap,
+          email
+        })
+      });
+
+      const saveResult = await saveResponse.json();
+
+      if (!saveResult.success) {
+        showLoading(false);
+        showError(saveResult.message);
         return;
       }
 
-      if (!nome || !cnpj || !zap || !email) {
-        showError('Preencha todos os campos do cliente.');
+      // BUSCAR LAUDO
+      const response = await fetch(
+        `${API_URL}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`
+      );
+
+      const result = await response.json();
+      showLoading(false);
+
+      if (!result.success) {
+        showError(result.message);
         return;
       }
 
-      showLoading(true);
+      const data = result.data;
 
-      try {
-        // Salvar dados do cliente
-        const saveResponse = await fetch(API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            action: 'salvarDadosCliente',
-            nome: nome,
-            cnpj: cnpj,
-            zap: zap,
-            email: email
-          })
-        });
+      document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
+      document.getElementById('productName').textContent = data.produto;
+      document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
+      document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
+      document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
+      document.getElementById('produto').textContent = data.produto;
+      document.getElementById('classe').textContent = data.classe;
 
-        const saveResult = await saveResponse.json();
+      document.getElementById('equipmentTableBody').innerHTML = `
+        <tr><td>Kilovoltímetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
+        <tr><td>Milliamperímetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
+        <tr><td>Cronômetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
+        <tr><td>Thermohigrômetro</td><td>CEL-TH-02</td><td>1803660</td><td>${data.validade}</td></tr>
+        <tr><td>Trena</td><td>PAN-TR-05</td><td>PAN-TR-105</td><td>${data.validade}</td></tr>
+      `;
 
-        if (!saveResult.success) {
-          showLoading(false);
-          showError(saveResult.message);
-          return;
-        }
+      document.getElementById('dataTableBody').innerHTML = `
+        <tr>
+          <td>N.A</td>
+          <td>${data.classe}</td>
+          <td>1000x1000</td>
+          <td>${data.rastreabilidade}</td>
+          <td>0,8</td>
+          <td>${data.kvAplicado}</td>
+          <td>&lt; 16</td>
+          <td><span class="status-badge status-ap">AP</span></td>
+        </tr>
+      `;
 
-        // Gerar laudo
-        const response = await fetch(`${API_URL}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`);
-        const result = await response.json();
+      document.getElementById('popupContainer').style.display = 'none';
+      document.getElementById('certificateContainer').style.display = 'block';
+      document.querySelector('.container').style.overflow = 'hidden';
 
-        showLoading(false);
-
-        if (!result.success) {
-          showError(result.message);
-          return;
-        }
-
-        const data = result.data;
-
-        // ===============================
-        // CABEÇALHO
-        // ===============================
-        document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
-        document.getElementById('productName').textContent = data.produto;
-
-        // ===============================
-        // INFORMAÇÕES DO ENSAIO
-        // ===============================
-        document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
-        document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
-        document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
-        document.getElementById('produto').textContent = data.produto;
-        document.getElementById('classe').textContent = data.classe;
-
-        // ===============================
-        // EQUIPAMENTOS
-        // ===============================
-        document.getElementById('equipmentTableBody').innerHTML = `
-          <tr>
-            <td>Kilovoltímetro</td>
-            <td>CEL-HP-01</td>
-            <td>${data.certifCalibracao}</td>
-            <td>${data.validade}</td>
-          </tr>
-          <tr>
-            <td>Milliamperímetro</td>
-            <td>CEL-HP-01</td>
-            <td>${data.certifCalibracao}</td>
-            <td>${data.validade}</td>
-          </tr>
-          <tr>
-            <td>Cronômetro</td>
-            <td>CEL-HP-01</td>
-            <td>${data.certifCalibracao}</td>
-            <td>${data.validade}</td>
-          </tr>
-          <tr>
-            <td>Thermohigrômetro</td>
-            <td>CEL-TH-02</td>
-            <td>1803660</td>
-            <td>${data.validade}</td>
-          </tr>
-          <tr>
-            <td>Trena</td>
-            <td>PAN-TR-05</td>
-            <td>PAN-TR-105</td>
-            <td>${data.validade}</td>
-          </tr>
-        `;
-
-        // ===============================
-        // CONDIÇÕES DO ENSAIO
-        // ===============================
-        document.getElementById('temperatura').textContent = '23 ºC';
-        document.getElementById('tempoEnsaio').textContent = '1 minuto';
-        document.getElementById('umidade').textContent = '70 %';
-
-        // ===============================
-        // RESULTADOS
-        // ===============================
-        document.getElementById('dataTableHeader').innerHTML = `
-          <tr>
-            <th>Usuário/Localização</th>
-            <th>Classe</th>
-            <th>Tamanho (mm)</th>
-            <th>Nº de Série</th>
-            <th>Corrente de Fuga (mA)</th>
-            <th>kV Aplicado</th>
-            <th>Referência (mA)</th>
-            <th>Status</th>
-          </tr>
-        `;
-
-        document.getElementById('dataTableBody').innerHTML = `
-          <tr>
-            <td>N.A</td>
-            <td>${data.classe}</td>
-            <td>1000x1000</td>
-            <td>${data.rastreabilidade}</td>
-            <td>0,8</td>
-            <td>${data.kvAplicado}</td>
-            <td>&lt; 16</td>
-            <td><span class="status-badge status-ap">AP</span></td>
-          </tr>
-        `;
-
-        // ===============================
-        // EXIBIR LAUDO
-        // ===============================
-        document.getElementById('popupContainer').style.display = 'none';
-        document.getElementById('certificateContainer').style.display = 'block';
-        document.querySelector('.container').style.overflow = 'hidden';
-
-      } catch (err) {
-        showLoading(false);
-        showError('Erro: ' + err.message);
-      }
-    });
-
-    // ===============================
-    // VOLTAR CONSULTA
-    // ===============================
-    function voltarConsulta() {
-      document.getElementById('certificateContainer').style.display = 'none';
-      document.getElementById('popupContainer').style.display = 'flex';
-      document.getElementById('laudoNumber').value = '';
-      document.getElementById('nome').value = '';
-      document.getElementById('cnpj').value = '';
-      document.getElementById('whatsapp').value = '';
-      document.getElementById('email').value = '';
+    } catch (err) {
+      showLoading(false);
+      showError('Erro: ' + err.message);
     }
+  });
 
-    // ===============================
-    // HELPERS
-    // ===============================
-    function showLoading(show) {
-      document.getElementById('loading').style.display = show ? 'block' : 'none';
-      document.getElementById('errorMessage').style.display = 'none';
-      document.getElementById('successMessage').style.display = 'none';
-    }
+  function showLoading(show) {
+    document.getElementById('loading').style.display = show ? 'block' : 'none';
+    document.getElementById('errorMessage').style.display = 'none';
+  }
 
-    function showError(msg) {
-      document.getElementById('errorMessage').textContent = msg;
-      document.getElementById('errorMessage').style.display = 'block';
-    }
-  </script>
+  function showError(msg) {
+    document.getElementById('errorMessage').textContent = msg;
+    document.getElementById('errorMessage').style.display = 'block';
+  }
+</script>
+
 </body>
 </html>
