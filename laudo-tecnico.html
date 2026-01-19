@@ -475,9 +475,6 @@
 <script>
   const API_URL = 'https://script.google.com/macros/s/AKfycbwXD_LIit80umqVvBPS071fTwv3tKMl_vUjZlsuvZ-YlsRVUp0YCCJcBgON260f9ry2kA/exec';
 
-  // ===============================
-  // GERAR LAUDO E SALVAR DADOS DO CLIENTE
-  // ===============================
   document.getElementById('generateBtn').addEventListener('click', async function() {
     const numeroLaudo = document.getElementById('laudoNumber').value.trim();
     const nome = document.getElementById('nome').value.trim();
@@ -485,7 +482,6 @@
     const zap = document.getElementById('whatsapp').value.trim();
     const email = document.getElementById('email').value.trim();
 
-    // Validação dos campos
     if (!numeroLaudo) {
       showError('Digite o número do laudo.');
       return;
@@ -529,24 +525,18 @@
 
       const data = result.data;
 
-      // ===============================
-      // CABEÇALHO
-      // ===============================
+      // Preencher cabeçalho
       document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
       document.getElementById('productName').textContent = data.produto;
 
-      // ===============================
-      // INFORMAÇÕES DO ENSAIO
-      // ===============================
+      // Preencher informações do ensaio
       document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
       document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
       document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
       document.getElementById('produto').textContent = data.produto;
       document.getElementById('classe').textContent = data.classe;
 
-      // ===============================
-      // EQUIPAMENTOS
-      // ===============================
+      // Preencher equipamentos
       document.getElementById('equipmentTableBody').innerHTML = `
         <tr>
           <td>Kilovoltímetro</td>
@@ -580,16 +570,12 @@
         </tr>
       `;
 
-      // ===============================
-      // CONDIÇÕES DO ENSAIO
-      // ===============================
+      // Preencher condições do ensaio
       document.getElementById('temperatura').textContent = '23 ºC';
       document.getElementById('tempoEnsaio').textContent = '1 minuto';
       document.getElementById('umidade').textContent = '70 %';
 
-      // ===============================
-      // RESULTADOS
-      // ===============================
+      // Preencher resultados
       document.getElementById('dataTableHeader').innerHTML = `
         <tr>
           <th>Usuário/Localização</th>
@@ -616,9 +602,7 @@
         </tr>
       `;
 
-      // ===============================
-      // EXIBIR LAUDO
-      // ===============================
+      // Exibir laudo
       document.getElementById('popupContainer').style.display = 'none';
       document.getElementById('certificateContainer').style.display = 'block';
       document.querySelector('.container').style.overflow = 'hidden';
@@ -629,9 +613,6 @@
     }
   });
 
-  // ===============================
-  // VOLTAR CONSULTA
-  // ===============================
   function voltarConsulta() {
     document.getElementById('certificateContainer').style.display = 'none';
     document.getElementById('popupContainer').style.display = 'flex';
@@ -642,9 +623,6 @@
     document.getElementById('email').value = '';
   }
 
-  // ===============================
-  // HELPERS
-  // ===============================
   function showLoading(show) {
     document.getElementById('loading').style.display = show ? 'block' : 'none';
     document.getElementById('errorMessage').style.display = 'none';
@@ -656,5 +634,6 @@
     document.getElementById('errorMessage').style.display = 'block';
   }
 </script>
+
 </body>
 </html>
