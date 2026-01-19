@@ -496,18 +496,15 @@
 
     try {
       // SALVAR DADOS DO CLIENTE
-      const saveResponse = await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({
-          action: 'salvarDadosCliente',
-          nome,
-          cnpj,
-          zap,
-          email
-        })
-      });
+     const saveUrl = `${API_URL}?action=salvarDadosCliente` +
+      `&nome=${encodeURIComponent(nome)}` +
+      `&cnpj=${encodeURIComponent(cnpj)}` +
+      `&zap=${encodeURIComponent(zap)}` +
+      `&email=${encodeURIComponent(email)}`;
+    
+    const saveResponse = await fetch(saveUrl);
+    const saveResult = await saveResponse.json();
 
-      const saveResult = await saveResponse.json();
 
       if (!saveResult.success) {
         showLoading(false);
