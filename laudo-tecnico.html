@@ -566,28 +566,51 @@
     // ===============================
     // TESTAR CONEXÃO
     // ===============================
-    document.getElementById('testBtn').addEventListener('click', async function() {
-        showLoading(true);
+   document.getElementById('submitClientData').addEventListener('click', async function() {
+    const nome = document.getElementById('nome').value.trim();
+    const cnpj = document.getElementById('cnpj').value.trim();
+    const whatsapp = document.getElementById('whatsapp').value.trim();
+    const email = document.getElementById('email').value.trim();
 
-        try {
-            const response = await fetch(`${API_URL}?action=testarConexao`);
-            const result = await response.json();
+    if (!nome || !cnpj || !whatsapp || !email) {
+        showError('Preencha todos os campos do formulário.');
+        return;
+    }
 
-            showLoading(false);
+    showLoading(true);
 
-            if (!result.success) {
-                showError(result.message);
-                return;
-            }
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'salvarDadosCliente',
+                nome: nome,
+                cnpj: cnpj,
+                whatsapp: whatsapp,
+                email: email
+            })
+        });
 
-            document.getElementById('successMessage').textContent = result.message;
-            document.getElementById('successMessage').style.display = 'block';
+        const result = await response.json();
+        showLoading(false);
 
-        } catch (err) {
-            showLoading(false);
-            showError('Erro ao testar conexão: ' + err.message);
+        if (!result.success) {
+            showError(result.message);
+            return;
         }
-    });
+
+        document.getElementById('successMessage').textContent = 'Dados salvos com sucesso!';
+        document.getElementById('successMessage').style.display = 'block';
+
+    } catch (err) {
+        showLoading(false);
+        showError('Erro ao salvar dados: ' + err.message);
+    }
+});
+
 
     // ===============================
     // VOLTAR CONSULTA
