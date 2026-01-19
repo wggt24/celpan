@@ -476,118 +476,122 @@
   const API_URL = 'https://script.google.com/macros/s/AKfycbwXD_LIit80umqVvBPS071fTwv3tKMl_vUjZlsuvZ-YlsRVUp0YCCJcBgON260f9ry2kA/exec';
 
   document.getElementById('generateBtn').addEventListener('click', async function () {
-    const numeroLaudo = document.getElementById('laudoNumber').value.trim();
-    const nome = document.getElementById('nome').value.trim();
-    const cnpj = document.getElementById('cnpj').value.trim();
-    const zap = document.getElementById('whatsapp').value.trim();
-    const email = document.getElementById('email').value.trim();
+  const numeroLaudo = document.getElementById('laudoNumber').value.trim();
+  const nome = document.getElementById('nome').value.trim();
+  const cnpj = document.getElementById('cnpj').value.trim();
+  const zap = document.getElementById('whatsapp').value.trim();
+  const email = document.getElementById('email').value.trim();
 
-    if (!numeroLaudo) {
-      showError('Digite o número do laudo.');
+  if (!numeroLaudo) {
+    showError('Digite o número do laudo.');
+    return;
+  }
+
+  if (!nome || !cnpj || !zap || !email) {
+    showError('Preencha todos os campos do cliente.');
+    return;
+  }
+
+  showLoading(true);
+
+  try {
+    // Salvar dados do cliente
+    const saveResponse = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'salvarDadosCliente',
+        nome,
+        cnpj,
+        zap,
+        email
+      })
+    });
+
+    const saveResult = await saveResponse.json();
+
+    if (!saveResult.success) {
+      showLoading(false);
+      showError(saveResult.message);
       return;
     }
 
-    if (!nome || !cnpj || !zap || !email) {
-      showError('Preencha todos os campos do cliente.');
+    // Buscar laudo
+    const response = await fetch(
+      `${API_URL}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`
+    );
+
+    const result = await response.json();
+    showLoading(false);
+
+    if (!result.success) {
+      showError(result.message);
       return;
     }
 
-    showLoading(true);
+    const data = result.data;
 
-    try {
-      // SALVAR DADOS DO CLIENTE
-      const saveResponse = await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({
-          action: 'salvarDadosCliente',
-          nome,
-          cnpj,
-          zap,
-          email
-        })
-      });
+    // Preencher os campos do laudo
+    document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
+    document.getElementById('productName').textContent = data.produto;
+    document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
+    document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
+    document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
+    document.getElementById('produto').textContent = data.produto;
+    document.getElementById('classe').textContent = data.classe;
+    document.getElementById('temperatura').textContent = "25°C"; // Exemplo fixo
+    document.getElementById('tempoEnsaio').textContent = "10 min"; // Exemplo fixo
+    document.getElementById('umidade').textContent = "60%"; // Exemplo fixo
 
-      const saveResult = await saveResponse.json();
+    // Preencher tabela de equipamentos
+    document.getElementById('equipmentTableBody').innerHTML = `
+      <tr><td>Kilovoltímetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
+      <tr><td>Milliamperímetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
+      <tr><td>Cronômetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
+      <tr><td>Thermohigrômetro</td><td>CEL-TH-02</td><td>1803660</td><td>${data.validade}</td></tr>
+      <tr><td>Trena</td><td>PAN-TR-05</td><td>PAN-TR-105</td><td>${data.validade}</td></tr>
+    `;
 
-      if (!saveResult.success) {
-        showLoading(false);
-        showError(saveResult.message);
-        return;
-      }
+    // Preencher tabela de resultados dos ensaios
+    document.getElementById('dataTableHeader').innerHTML = `
+      <tr>
+        <th>N.A</th>
+        <th>Classe</th>
+        <th>Dimensões</th>
+        <th>Rastreabilidade</th>
+        <th>Espessura (mm)</th>
+        <th>KV Aplicado</th>
+        <th>Corrente (µA)</th>
+        <th>Resultado</th>
+      </tr>
+    `;
 
-      // BUSCAR LAUDO
-      const response = await fetch(
-        `${API_URL}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`
-      );
+    document.getElementById('dataTableBody').innerHTML = `
+      <tr>
+        <td>N.A</td>
+        <td>${data.classe}</td>
+        <td>1000x1000</td>
+        <td>${data.rastreabilidade}</td>
+        <td>0,8</td>
+        <td>${data.kvAplicado}</td>
+        <td>&lt; 16</td>
+        <td><span class="status-badge status-ap">AP</span></td>
+      </tr>
+    `;
 
-      const result = await response.json();
-      showLoading(false);
+    // Exibir o laudo
+    document.getElementById('popupContainer').style.display = 'none';
+    document.getElementById('certificateContainer').style.display = 'block';
+    document.querySelector('.container').style.overflow = 'hidden';
 
-      if (!result.success) {
-        showError(result.message);
-        return;
-      }
+  } catch (err) {
+    showLoading(false);
+    showError('Erro: ' + err.message);
+  }
+});
 
-      const data = result.data;
-
-      // Dentro do bloco try, após receber os dados do laudo (result.data):
-      document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
-      document.getElementById('productName').textContent = data.produto;
-      document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
-      document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
-      document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
-      document.getElementById('produto').textContent = data.produto;
-      document.getElementById('classe').textContent = data.classe;
-      document.getElementById('temperatura').textContent = "25°C"; // Exemplo fixo (substitua por dados reais)
-      document.getElementById('tempoEnsaio').textContent = "10 min"; // Exemplo fixo (substitua por dados reais)
-      document.getElementById('umidade').textContent = "60%"; // Exemplo fixo (substitua por dados reais)
-      
-      // Preencher tabela de equipamentos
-      document.getElementById('equipmentTableBody').innerHTML = `
-        <tr><td>Kilovoltímetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
-        <tr><td>Milliamperímetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
-        <tr><td>Cronômetro</td><td>CEL-HP-01</td><td>${data.certifCalibracao}</td><td>${data.validade}</td></tr>
-        <tr><td>Thermohigrômetro</td><td>CEL-TH-02</td><td>1803660</td><td>${data.validade}</td></tr>
-        <tr><td>Trena</td><td>PAN-TR-05</td><td>PAN-TR-105</td><td>${data.validade}</td></tr>
-      `;
-      
-      // Preencher tabela de resultados dos ensaios
-      document.getElementById('dataTableHeader').innerHTML = `
-        <tr>
-          <th>N.A</th>
-          <th>Classe</th>
-          <th>Dimensões</th>
-          <th>Rastreabilidade</th>
-          <th>Espessura (mm)</th>
-          <th>KV Aplicado</th>
-          <th>Corrente (µA)</th>
-          <th>Resultado</th>
-        </tr>
-      `;
-      
-      document.getElementById('dataTableBody').innerHTML = `
-        <tr>
-          <td>N.A</td>
-          <td>${data.classe}</td>
-          <td>1000x1000</td>
-          <td>${data.rastreabilidade}</td>
-          <td>0,8</td>
-          <td>${data.kvAplicado}</td>
-          <td>&lt; 16</td>
-          <td><span class="status-badge status-ap">AP</span></td>
-        </tr>
-      `;
-
-
-      document.getElementById('popupContainer').style.display = 'none';
-      document.getElementById('certificateContainer').style.display = 'block';
-      document.querySelector('.container').style.overflow = 'hidden';
-
-    } catch (err) {
-      showLoading(false);
-      showError('Erro: ' + err.message);
-    }
-  });
 
   function showLoading(show) {
     document.getElementById('loading').style.display = show ? 'block' : 'none';
@@ -609,9 +613,6 @@
       document.getElementById('email').value = '';
     }
     
-    </script>
-
-
-
+</script>
 </body>
 </html>
