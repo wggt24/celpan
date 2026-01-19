@@ -369,183 +369,231 @@
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwXD_LIit80umqVvBPS071fTwv3tKMl_vUjZlsuvZ-YlsRVUp0YCCJcBgON260f9ry2kA/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwXD_LIit80umqVvBPS071fTwv3tKMl_vUjZlsuvZ-YlsRVUp0YCCJcBgON260f9ry2kA/exec';
 
-        // ===============================
-        // GERAR LAUDO
-        // ===============================
-        document.getElementById('generateBtn').addEventListener('click', async function() {
-            const numeroLaudo = document.getElementById('laudoNumber').value.trim();
+    // ===============================
+    // GERAR LAUDO
+    // ===============================
+    document.getElementById('generateBtn').addEventListener('click', async function() {
+        const numeroLaudo = document.getElementById('laudoNumber').value.trim();
 
-            if (!numeroLaudo) {
-                showError('Digite o número do laudo.');
+        if (!numeroLaudo) {
+            showError('Digite o número do laudo.');
+            return;
+        }
+
+        showLoading(true);
+
+        try {
+            const response = await fetch(`${API_URL}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`);
+            const result = await response.json();
+
+            showLoading(false);
+
+            if (!result.success) {
+                showError(result.message);
                 return;
             }
 
-            showLoading(true);
+            const data = result.data;
 
-            try {
-                const response = await fetch(`${API_URL}?action=buscarLaudoPorNumero&numeroLaudo=${encodeURIComponent(numeroLaudo)}`);
-                const result = await response.json();
+            // ===============================
+            // CABEÇALHO
+            // ===============================
+            document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
+            document.getElementById('productName').textContent = data.produto;
 
-                showLoading(false);
+            // ===============================
+            // INFORMAÇÕES DO ENSAIO
+            // ===============================
+            document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
+            document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
+            document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
+            document.getElementById('produto').textContent = data.produto;
+            document.getElementById('classe').textContent = data.classe;
 
-                if (!result.success) {
-                    showError(result.message);
-                    return;
-                }
+            // ===============================
+            // EQUIPAMENTOS
+            // ===============================
+            document.getElementById('equipmentTableBody').innerHTML = `
+                <tr>
+                    <td>Kilovoltímetro</td>
+                    <td>CEL-HP-01</td>
+                    <td>${data.certifCalibracao}</td>
+                    <td>${data.validade}</td>
+                </tr>
+                <tr>
+                    <td>Milliamperímetro</td>
+                    <td>CEL-HP-01</td>
+                    <td>${data.certifCalibracao}</td>
+                    <td>${data.validade}</td>
+                </tr>
+                <tr>
+                    <td>Cronômetro</td>
+                    <td>CEL-HP-01</td>
+                    <td>${data.certifCalibracao}</td>
+                    <td>${data.validade}</td>
+                </tr>
+                <tr>
+                    <td>Thermohigrômetro</td>
+                    <td>CEL-TH-02</td>
+                    <td>1803660</td>
+                    <td>${data.validade}</td>
+                </tr>
+                <tr>
+                    <td>Trena</td>
+                    <td>PAN-TR-05</td>
+                    <td>PAN-TR-105</td>
+                    <td>${data.validade}</td>
+                </tr>
+            `;
 
-                const data = result.data;
+            // ===============================
+            // CONDIÇÕES DO ENSAIO
+            // ===============================
+            document.getElementById('temperatura').textContent = '23 ºC';
+            document.getElementById('tempoEnsaio').textContent = '1 minuto';
+            document.getElementById('umidade').textContent = '70 %';
 
-                // ===============================
-                // CABEÇALHO
-                // ===============================
-                document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
-                document.getElementById('productName').textContent = data.produto;
+            // ===============================
+            // RESULTADOS
+            // ===============================
+            document.getElementById('dataTableHeader').innerHTML = `
+                <tr>
+                    <th>Usuário/Localização</th>
+                    <th>Classe</th>
+                    <th>Tamanho (mm)</th>
+                    <th>Nº de Série</th>
+                    <th>Corrente de Fuga (mA)</th>
+                    <th>kV Aplicado</th>
+                    <th>Referência (mA)</th>
+                    <th>Status</th>
+                </tr>
+            `;
 
-                // ===============================
-                // INFORMAÇÕES DO ENSAIO
-                // ===============================
-                document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
-                document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
-                document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
-                document.getElementById('produto').textContent = data.produto;
-                document.getElementById('classe').textContent = data.classe;
+            document.getElementById('dataTableBody').innerHTML = `
+                <tr>
+                    <td>N.A</td>
+                    <td>${data.classe}</td>
+                    <td>1000x1000</td>
+                    <td>${data.rastreabilidade}</td>
+                    <td>0,8</td>
+                    <td>${data.kvAplicado}</td>
+                    <td>&lt; 16</td>
+                    <td><span class="status-badge status-ap">AP</span></td>
+                </tr>
+            `;
 
-                // ===============================
-                // EQUIPAMENTOS
-                // ===============================
-                document.getElementById('equipmentTableBody').innerHTML = `
-                    <tr>
-                        <td>Kilovoltímetro</td>
-                        <td>CEL-HP-01</td>
-                        <td>${data.certifCalibracao}</td>
-                        <td>${data.validade}</td>
-                    </tr>
-                    <tr>
-                        <td>Milliamperímetro</td>
-                        <td>CEL-HP-01</td>
-                        <td>${data.certifCalibracao}</td>
-                        <td>${data.validade}</td>
-                    </tr>
-                    <tr>
-                        <td>Cronômetro</td>
-                        <td>CEL-HP-01</td>
-                        <td>${data.certifCalibracao}</td>
-                        <td>${data.validade}</td>
-                    </tr>
-                    <tr>
-                        <td>Thermohigrômetro</td>
-                        <td>CEL-TH-02</td>
-                        <td>1803660</td>
-                        <td>${data.validade}</td>
-                    </tr>
-                    <tr>
-                        <td>Trena</td>
-                        <td>PAN-TR-05</td>
-                        <td>PAN-TR-105</td>
-                        <td>${data.validade}</td>
-                    </tr>
-                `;
+            // ===============================
+            // EXIBIR LAUDO
+            // ===============================
+            document.getElementById('popupContainer').style.display = 'none';
+            document.getElementById('certificateContainer').style.display = 'block';
+            document.querySelector('.container').style.overflow = 'hidden';
 
-                // ===============================
-                // CONDIÇÕES DO ENSAIO
-                // ===============================
-                document.getElementById('temperatura').textContent = '23 ºC';
-                document.getElementById('tempoEnsaio').textContent = '1 minuto';
-                document.getElementById('umidade').textContent = '70 %';
+        } catch (err) {
+            showLoading(false);
+            showError('Erro ao buscar dados: ' + err.message);
+        }
+    });
 
-                // ===============================
-                // RESULTADOS
-                // ===============================
-                document.getElementById('dataTableHeader').innerHTML = `
-                    <tr>
-                        <th>Usuário/Localização</th>
-                        <th>Classe</th>
-                        <th>Tamanho (mm)</th>
-                        <th>Nº de Série</th>
-                        <th>Corrente de Fuga (mA)</th>
-                        <th>kV Aplicado</th>
-                        <th>Referência (mA)</th>
-                        <th>Status</th>
-                    </tr>
-                `;
+    // ===============================
+    // CAPTURAR DADOS DO FORMULÁRIO E ENVIAR PARA O BACKEND
+    // ===============================
+    document.getElementById('submitClientData').addEventListener('click', async function() {
+        const nome = document.getElementById('nome').value.trim();
+        const cnpj = document.getElementById('cnpj').value.trim();
+        const whatsapp = document.getElementById('whatsapp').value.trim();
+        const email = document.getElementById('email').value.trim();
 
-                document.getElementById('dataTableBody').innerHTML = `
-                    <tr>
-                        <td>N.A</td>
-                        <td>${data.classe}</td>
-                        <td>1000x1000</td>
-                        <td>${data.rastreabilidade}</td>
-                        <td>0,8</td>
-                        <td>${data.kvAplicado}</td>
-                        <td>&lt; 16</td>
-                        <td><span class="status-badge status-ap">AP</span></td>
-                    </tr>
-                `;
+        if (!nome || !cnpj || !whatsapp || !email) {
+            showError('Preencha todos os campos do formulário.');
+            return;
+        }
 
-                // ===============================
-                // EXIBIR LAUDO
-                // ===============================
-                document.getElementById('popupContainer').style.display = 'none';
-                document.getElementById('certificateContainer').style.display = 'block';
-                document.querySelector('.container').style.overflow = 'hidden';
+        showLoading(true);
 
-            } catch (err) {
-                showLoading(false);
-                showError('Erro ao buscar dados: ' + err.message);
+        try {
+            const response = await fetch(`${API_URL}?action=salvarDadosCliente`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    nome: nome,
+                    cnpj: cnpj,
+                    whatsapp: whatsapp,
+                    email: email
+                })
+            });
+
+            const result = await response.json();
+            showLoading(false);
+
+            if (!result.success) {
+                showError(result.message);
+                return;
             }
-        });
 
-        // ===============================
-        // TESTAR CONEXÃO
-        // ===============================
-        document.getElementById('testBtn').addEventListener('click', async function() {
-            showLoading(true);
+            document.getElementById('successMessage').textContent = 'Dados salvos com sucesso!';
+            document.getElementById('successMessage').style.display = 'block';
 
-            try {
-                const response = await fetch(`${API_URL}?action=testarConexao`);
-                const result = await response.json();
+        } catch (err) {
+            showLoading(false);
+            showError('Erro ao salvar dados: ' + err.message);
+        }
+    });
 
-                showLoading(false);
+    // ===============================
+    // TESTAR CONEXÃO
+    // ===============================
+    document.getElementById('testBtn').addEventListener('click', async function() {
+        showLoading(true);
 
-                if (!result.success) {
-                    showError(result.message);
-                    return;
-                }
+        try {
+            const response = await fetch(`${API_URL}?action=testarConexao`);
+            const result = await response.json();
 
-                document.getElementById('successMessage').textContent = result.message;
-                document.getElementById('successMessage').style.display = 'block';
+            showLoading(false);
 
-            } catch (err) {
-                showLoading(false);
-                showError('Erro ao testar conexão: ' + err.message);
+            if (!result.success) {
+                showError(result.message);
+                return;
             }
-        });
 
-        // ===============================
-        // VOLTAR CONSULTA
-        // ===============================
-        function voltarConsulta() {
-            document.getElementById('certificateContainer').style.display = 'none';
-            document.getElementById('popupContainer').style.display = 'flex';
-            document.getElementById('laudoNumber').value = '';
-        }
+            document.getElementById('successMessage').textContent = result.message;
+            document.getElementById('successMessage').style.display = 'block';
 
-        // ===============================
-        // HELPERS
-        // ===============================
-        function showLoading(show) {
-            document.getElementById('loading').style.display = show ? 'block' : 'none';
-            document.getElementById('errorMessage').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'none';
+        } catch (err) {
+            showLoading(false);
+            showError('Erro ao testar conexão: ' + err.message);
         }
+    });
 
-        function showError(msg) {
-            document.getElementById('errorMessage').textContent = msg;
-            document.getElementById('errorMessage').style.display = 'block';
-        }
-    </script>
+    // ===============================
+    // VOLTAR CONSULTA
+    // ===============================
+    function voltarConsulta() {
+        document.getElementById('certificateContainer').style.display = 'none';
+        document.getElementById('popupContainer').style.display = 'flex';
+        document.getElementById('laudoNumber').value = '';
+    }
+
+    // ===============================
+    // HELPERS
+    // ===============================
+    function showLoading(show) {
+        document.getElementById('loading').style.display = show ? 'block' : 'none';
+        document.getElementById('errorMessage').style.display = 'none';
+        document.getElementById('successMessage').style.display = 'none';
+    }
+
+    function showError(msg) {
+        document.getElementById('errorMessage').textContent = msg;
+        document.getElementById('errorMessage').style.display = 'block';
+    }
+</script>
+
 </body>
 
 </html>
