@@ -579,11 +579,10 @@
   }
 
 
-  // Função para validar WhatsApp
-    function validarWhatsApp(whatsapp) {
-      const re = /^\d{2} \d{5}-\d{4}$/;
-      return re.test(whatsapp);
-    }
+ function validarNome(nome) {
+  const re = /^[A-Za-zÀ-ÖØ-öø-\s]+$/;
+  return re.test(nome);
+}
 
 
   // Função para mostrar erro
