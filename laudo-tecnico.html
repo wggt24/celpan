@@ -421,11 +421,16 @@
       <div class="section-title">Resultados dos Ensaios</div>
       <div class="data-table-container">
         <table class="data-table">
-          <thead id="dataTableHeader">
-            <!-- Dinâmico -->
+          <thead>
             <tr>
-              <th>Ensaio</th>
-              <th>Resultado</th>
+              <th>Usuário/Localização</th>
+              <th>Marca/Fabricante</th>
+              <th>Classe</th>
+              <th>Tamanho (mm)</th>
+              <th>Nº de Série</th>
+              <th>Corrente de Fuga (mA)</th>
+              <th>Kv aplicado</th>
+              <th>Referência (mA)</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -493,20 +498,17 @@ document.getElementById('generateBtn').addEventListener('click', function () {
 
   showLoading(true);
 
-  // segurança: limpa script antigo
   if (jsonpScript) {
     jsonpScript.remove();
     jsonpScript = null;
   }
 
-  // timeout de segurança
   clearTimeout(timeoutRef);
   timeoutRef = setTimeout(() => {
     showLoading(false);
     showError('Tempo limite ao consultar o laudo.');
   }, 8000);
 
-  // callback GLOBAL (obrigatório)
   window.receberLaudo = function (result) {
     clearTimeout(timeoutRef);
     showLoading(false);
@@ -518,7 +520,6 @@ document.getElementById('generateBtn').addEventListener('click', function () {
 
     const data = result.data;
 
-    // Preenche campos estáticos
     document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
     document.getElementById('productName').textContent = data.produto;
     document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
@@ -527,13 +528,13 @@ document.getElementById('generateBtn').addEventListener('click', function () {
     document.getElementById('produto').textContent = data.produto;
     document.getElementById('classe').textContent = data.classe;
 
-    // Preenche tabela de equipamentos
-    preencherTabelaEquipamentos(data);
+    document.getElementById('temperatura').textContent = data.temperatura;
+    document.getElementById('umidade').textContent = data.umidade;
+    document.getElementById('tempoEnsaio').textContent = data.tempoEnsaio;
 
-    // Preenche tabela de resultados
-    preencherTabelaResultados(data);
+    preencherTabelaEquipamentos(data.equipamentosUtilizados);
+    preencherTabelaResultados(data.resultadosEnsaios);
 
-    // Exibe o certificado
     document.getElementById('certificateContainer').style.display = 'block';
     document.getElementById('popupContainer').style.display = 'none';
   };
@@ -554,27 +555,35 @@ document.getElementById('generateBtn').addEventListener('click', function () {
   document.body.appendChild(jsonpScript);
 });
 
-function preencherTabelaEquipamentos(data) {
+function preencherTabelaEquipamentos(equipamentos) {
   const tableBody = document.getElementById('equipmentTableBody');
   tableBody.innerHTML = '';
 
-  // Exemplo: Adiciona uma linha com os dados do equipamento
-  const row = tableBody.insertRow();
-  row.insertCell(0).textContent = 'Equipamento de Teste';
-  row.insertCell(1).textContent = data.rastreabilidade;
-  row.insertCell(2).textContent = data.certifCalibracao;
-  row.insertCell(3).textContent = data.validade;
+  equipamentos.forEach(equipamento => {
+    const row = tableBody.insertRow();
+    row.insertCell(0).textContent = equipamento.nome;
+    row.insertCell(1).textContent = equipamento.codigo;
+    row.insertCell(2).textContent = equipamento.certifCalibracao;
+    row.insertCell(3).textContent = equipamento.validade;
+  });
 }
 
-function preencherTabelaResultados(data) {
+function preencherTabelaResultados(resultados) {
   const tableBody = document.getElementById('dataTableBody');
   tableBody.innerHTML = '';
 
-  // Exemplo: Adiciona uma linha com os resultados do ensaio
-  const row = tableBody.insertRow();
-  row.insertCell(0).textContent = 'Ensaio Elétrico';
-  row.insertCell(1).textContent = data.kvAplicado;
-  row.insertCell(2).textContent = 'AP';
+  resultados.forEach(resultado => {
+    const row = tableBody.insertRow();
+    row.insertCell(0).textContent = resultado.usuarioLocalizacao;
+    row.insertCell(1).textContent = resultado.marcaFabricante;
+    row.insertCell(2).textContent = resultado.classe;
+    row.insertCell(3).textContent = resultado.tamanho;
+    row.insertCell(4).textContent = resultado.numeroSerie;
+    row.insertCell(5).textContent = resultado.corranteFuga;
+    row.insertCell(6).textContent = resultado.kvAplicado;
+    row.insertCell(7).textContent = resultado.referencia;
+    row.insertCell(8).textContent = resultado.status;
+  });
 }
 
 function showLoading(show) {
