@@ -417,15 +417,35 @@
         </div>
       </div>
 
-      <!-- Resultados dos ensaios -->
+      <!-- Tabela de resultados dos ensaios (estática) -->
       <div class="section-title">Resultados dos Ensaios</div>
       <div class="data-table-container">
         <table class="data-table">
-          <thead id="dataTableHeader">
-            <!-- Dinâmico -->
+          <thead>
+            <tr>
+              <th>Usuário/Localização</th>
+              <th>Marca/Fabricante</th>
+              <th>Classe</th>
+              <th>Tamanho (mm)</th>
+              <th>Nº de Série</th>
+              <th>Corrente de Fuga (mA)</th>
+              <th>Kv aplicado</th>
+              <th>Referência (mA)</th>
+              <th>Status</th>
+            </tr>
           </thead>
-          <tbody id="dataTableBody">
-            <!-- Dinâmico -->
+          <tbody>
+            <tr>
+              <td>-N.A</td>
+              <td>Celpan</td>
+              <td id="classeDinamica"></td>
+              <td>1000X1000M M</td>
+              <td>9777</td>
+              <td>0,8</td>
+              <td id="kvAplicadoDinamico"></td>
+              <td>&lt; 16</td>
+              <td>AP</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -548,30 +568,9 @@
           )
           .join('');
 
-        // Preencher resultados dos ensaios
-        const resultados = [
-          { classe: data.classe, kvAplicado: data.kvAplicado, resultado: "AP" }
-        ];
-
-        const dataTableHeader = document.getElementById('dataTableHeader');
-        dataTableHeader.innerHTML = `
-          <tr>
-            <th>Classe</th>
-            <th>Kv Aplicado</th>
-            <th>Resultado</th>
-          </tr>
-        `;
-
-        const dataTableBody = document.getElementById('dataTableBody');
-        dataTableBody.innerHTML = resultados
-          .map(resultado =>
-            `<tr>
-              <td>${resultado.classe}</td>
-              <td>${resultado.kvAplicado}</td>
-              <td>${resultado.resultado}</td>
-            </tr>`
-          )
-          .join('');
+        // Preencher classe e Kv aplicado na tabela estática
+        document.getElementById('classeDinamica').textContent = data.classe;
+        document.getElementById('kvAplicadoDinamico').textContent = data.kvAplicado;
 
         // Exibir o laudo
         document.getElementById('certificateContainer').style.display = 'block';
