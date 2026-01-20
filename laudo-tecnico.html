@@ -510,21 +510,21 @@
   });
 
   // Máscara para WhatsApp
-  document// Máscara para WhatsApp
-      document.getElementById('whatsapp').addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length > 11) value = value.substring(0, 11); // 11 dígitos para XX XXXXX-XXXX
-      
-        // Aplica a máscara: XX XXXXX-XXXX
-        if (value.length > 2) {
-          value = value.substring(0, 2) + ' ' + value.substring(2);
-        }
-        if (value.length > 8) {
-          value = value.substring(0, 8) + '-' + value.substring(8, 12);
-        }
-      
-        e.target.value = value;
-      });
+  document.getElementById('whatsapp').addEventListener('input', function (e) {
+      let value = e.target.value.replace(/\D/g, '')
+      if (value.length > 11) value = value.slice(0, 11)
+    
+      if (value.length > 2) {
+        value = value.slice(0, 2) + ' ' + value.slice(2)
+      }
+    
+      if (value.length > 7) {
+        value = value.slice(0, 7) + '-' + value.slice(7)
+      }
+    
+      e.target.value = value
+    })
+
 
   // Função para validar CNPJ
   function validarCNPJ(cnpj) {
