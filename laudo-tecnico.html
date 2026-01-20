@@ -423,6 +423,11 @@
         <table class="data-table">
           <thead id="dataTableHeader">
             <!-- Dinâmico -->
+            <tr>
+              <th>Ensaio</th>
+              <th>Resultado</th>
+              <th>Status</th>
+            </tr>
           </thead>
           <tbody id="dataTableBody">
             <!-- Dinâmico -->
@@ -513,6 +518,7 @@ document.getElementById('generateBtn').addEventListener('click', function () {
 
     const data = result.data;
 
+    // Preenche campos estáticos
     document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
     document.getElementById('productName').textContent = data.produto;
     document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
@@ -521,6 +527,13 @@ document.getElementById('generateBtn').addEventListener('click', function () {
     document.getElementById('produto').textContent = data.produto;
     document.getElementById('classe').textContent = data.classe;
 
+    // Preenche tabela de equipamentos
+    preencherTabelaEquipamentos(data);
+
+    // Preenche tabela de resultados
+    preencherTabelaResultados(data);
+
+    // Exibe o certificado
     document.getElementById('certificateContainer').style.display = 'block';
     document.getElementById('popupContainer').style.display = 'none';
   };
@@ -541,6 +554,29 @@ document.getElementById('generateBtn').addEventListener('click', function () {
   document.body.appendChild(jsonpScript);
 });
 
+function preencherTabelaEquipamentos(data) {
+  const tableBody = document.getElementById('equipmentTableBody');
+  tableBody.innerHTML = '';
+
+  // Exemplo: Adiciona uma linha com os dados do equipamento
+  const row = tableBody.insertRow();
+  row.insertCell(0).textContent = 'Equipamento de Teste';
+  row.insertCell(1).textContent = data.rastreabilidade;
+  row.insertCell(2).textContent = data.certifCalibracao;
+  row.insertCell(3).textContent = data.validade;
+}
+
+function preencherTabelaResultados(data) {
+  const tableBody = document.getElementById('dataTableBody');
+  tableBody.innerHTML = '';
+
+  // Exemplo: Adiciona uma linha com os resultados do ensaio
+  const row = tableBody.insertRow();
+  row.insertCell(0).textContent = 'Ensaio Elétrico';
+  row.insertCell(1).textContent = data.kvAplicado;
+  row.insertCell(2).textContent = 'AP';
+}
+
 function showLoading(show) {
   document.getElementById('loading').style.display = show ? 'block' : 'none';
   document.getElementById('errorMessage').style.display = 'none';
@@ -550,7 +586,12 @@ function showError(msg) {
   document.getElementById('errorMessage').textContent = msg;
   document.getElementById('errorMessage').style.display = 'block';
 }
-</script>
 
+function voltarConsulta() {
+  document.getElementById('certificateContainer').style.display = 'none';
+  document.getElementById('popupContainer').style.display = 'flex';
+  document.getElementById('laudoNumber').value = '';
+}
+</script>
 </body>
 </html>
