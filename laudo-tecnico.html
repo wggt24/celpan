@@ -568,10 +568,15 @@
     return re.test(email);
   }
 
-// Função para validar WhatsApp
+
+ // Função para validar WhatsApp
   function validarWhatsApp(whatsapp) {
     const re = /^\(\d{2}\) \d{5}-\d{4}$/;
-    return re.test(whatsapp);
+    if (!re.test(whatsapp)) {
+      showError('WhatsApp inválido. Formato esperado: (XX) XXXXX-XXXX.');
+      return false;
+    }
+    return true;
   }
 
 
