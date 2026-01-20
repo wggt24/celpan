@@ -511,20 +511,22 @@
 
   // Máscara para WhatsApp
   document// Máscara para WhatsApp
+       // Máscara para WhatsApp
     document.getElementById('whatsapp').addEventListener('input', function(e) {
       let value = e.target.value.replace(/\D/g, '');
-      if (value.length > 11) value = value.substring(0, 11);
+      if (value.length > 10) value = value.substring(0, 10); // 10 dígitos para (XX)XXXXX-XXXX
     
-      // Aplica a máscara: (XX) XXXXX-XXXX
+      // Aplica a máscara: (XX)XXXXX-XXXX
       if (value.length > 2) {
         value = '(' + value.substring(0, 2) + ') ' + value.substring(2);
       }
-      if (value.length > 9) {
-        value = value.substring(0, 9) + '-' + value.substring(9);
+      if (value.length > 8) {
+        value = value.substring(0, 8) + '-' + value.substring(8, 12);
       }
     
       e.target.value = value;
     });
+
 
 
   // Função para validar CNPJ
