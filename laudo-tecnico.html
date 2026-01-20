@@ -751,28 +751,7 @@
 
     //Block Btn Right
 
-    document.addEventListener('contextmenu', e => e.preventDefault())
-
-    document.addEventListener('keydown', e => {
-    if (
-      e.key === 'F12' ||
-      (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) ||
-      (e.ctrlKey && e.key === 'U') ||
-      (e.ctrlKey && e.key === 'S')
-    ) {
-      e.preventDefault()
-      e.stopPropagation()
-    }
-  })
-
-setInterval(() => {
-  const a = new Date()
-  debugger
-  if (new Date() - a > 100) {
-    document.body.innerHTML = ''
-  }
-}, 500)
-
+   
   </script>
 </body>
 </html>
