@@ -319,9 +319,10 @@
             <input type="text" id="cnpj" placeholder="Digite o CNPJ" autocomplete="off">
           </div>
           <div class="input-group">
-            <label for="whatsapp">WhatsApp</label>
-            <input type="text" id="whatsapp" placeholder="Digite o WhatsApp" autocomplete="off">
-          </div>
+          <label for="whatsapp">WhatsApp</label>
+          <input type="text" id="whatsapp" placeholder="(XX) XXXXX-XXXX" autocomplete="off">
+        </div>
+
           <div class="input-group">
             <label for="email">E-mail</label>
             <input type="email" id="email" placeholder="Digite o e-mail" autocomplete="off">
@@ -509,13 +510,22 @@
   });
 
   // Máscara para WhatsApp
-  document.getElementById('whatsapp').addEventListener('input', function(e) {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 11) value = value.substring(0, 11);
-    if (value.length > 2) value = '(' + value.substring(0, 2) + ') ' + value.substring(2);
-    if (value.length > 9) value = value.substring(0, 9) + '-' + value.substring(9);
-    e.target.value = value;
-  });
+  document// Máscara para WhatsApp
+    document.getElementById('whatsapp').addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length > 11) value = value.substring(0, 11);
+    
+      // Aplica a máscara: (XX) XXXXX-XXXX
+      if (value.length > 2) {
+        value = '(' + value.substring(0, 2) + ') ' + value.substring(2);
+      }
+      if (value.length > 9) {
+        value = value.substring(0, 9) + '-' + value.substring(9);
+      }
+    
+      e.target.value = value;
+    });
+
 
   // Função para validar CNPJ
   function validarCNPJ(cnpj) {
@@ -558,11 +568,12 @@
     return re.test(email);
   }
 
-  // Função para validar WhatsApp
+// Função para validar WhatsApp
   function validarWhatsApp(whatsapp) {
-    const re = /^\(\d{2}\)\s?9?\d{4}-?\d{4}$/;
+    const re = /^\(\d{2}\) \d{5}-\d{4}$/;
     return re.test(whatsapp);
   }
+
 
   // Função para validar Nome (não aceita números)
   function validarNome(nome) {
