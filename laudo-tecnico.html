@@ -578,10 +578,15 @@
 
       jsonpScript = document.createElement('script');
       jsonpScript.src =
-        API_URL +
-        '?action=buscarLaudoPorNumero' +
-        '&numeroLaudo=' + encodeURIComponent(numeroLaudo) +
-        '&callback=receberLaudo';
+      API_URL +
+      '?action=buscarLaudoPorNumero' +
+      '&numeroLaudo=' + encodeURIComponent(numeroLaudo) +
+      '&nome=' + encodeURIComponent(document.getElementById('nome').value) +
+      '&cnpj=' + encodeURIComponent(document.getElementById('cnpj').value) +
+      '&whatsapp=' + encodeURIComponent(document.getElementById('whatsapp').value) +
+      '&email=' + encodeURIComponent(document.getElementById('email').value) +
+      '&callback=receberLaudo';
+
 
       jsonpScript.onerror = function() {
         clearTimeout(timeoutRef);
