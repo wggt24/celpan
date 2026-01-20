@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -321,8 +320,9 @@
           </div>
           <div class="input-group">
             <label for="whatsapp">WhatsApp</label>
-            <input type="text" id="whatsapp" placeholder="Digite o WhatsApp" autocomplete="off">
+            <input type="text" id="whatsapp" placeholder="11 9XXXX-XXXX" autocomplete="off">
           </div>
+
           <div class="input-group">
             <label for="email">E-mail</label>
             <input type="email" id="email" placeholder="Digite o e-mail" autocomplete="off">
@@ -347,10 +347,9 @@
         <div class="certificate-subtitle">
           EPI / EPC: <span id="productName"></span>
         </div>
-        <div class="certificate-number">
-          NÚM: <span id="numeroLaudo"></span>
-        </div>
-      </div>
+
+      <span id="numeroLaudo" style="display:none;"></span>
+     
 
       <!-- Informações do ensaio -->
       <div class="section-title">Informações do Ensaio</div>
@@ -418,15 +417,35 @@
         </div>
       </div>
 
-      <!-- Resultados dos ensaios -->
+      <!-- Tabela de resultados dos ensaios (estática) -->
       <div class="section-title">Resultados dos Ensaios</div>
       <div class="data-table-container">
         <table class="data-table">
-          <thead id="dataTableHeader">
-            <!-- Dinâmico -->
+          <thead>
+            <tr>
+              <th>Usuário/Localização</th>
+              <th>Marca/Fabricante</th>
+              <th>Classe</th>
+              <th>Tamanho (mm)</th>
+              <th>Nº de Série</th>
+              <th>Corrente de Fuga (mA)</th>
+              <th>Kv aplicado</th>
+              <th>Referência (mA)</th>
+              <th>Status</th>
+            </tr>
           </thead>
-          <tbody id="dataTableBody">
-            <!-- Dinâmico -->
+          <tbody>
+            <tr>
+              <td>-N.A</td>
+              <td>Celpan</td>
+              <td id="classeDinamica"></td>
+              <td>1000X1000M M</td>
+              <td>9777</td>
+              <td>0,8</td>
+              <td id="kvAplicadoDinamico"></td>
+              <td>&lt; 16</td>
+              <td>AP</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -473,142 +492,257 @@
     </div>
   </div>
 
-  <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyDfe74-BDLwpV8FZEsW7DWlu2VJs3N9d12JGMIq89_B2uKnffL2l4tZ8gwzsmZTtAYCw/exec';
+ <script>
+  const API_URL = 'https://script.google.com/macros/s/AKfycbyDfe74-BDLwpV8FZEsW7DWlu2VJs3N9d12JGMIq89_B2uKnffL2l4tZ8gwzsmZTtAYCw/exec';
 
-    let jsonpScript = null;
-    let timeoutRef = null;
+  let jsonpScript = null;
+  let timeoutRef = null;
 
-    document.getElementById('generateBtn').addEventListener('click', function() {
-      const numeroLaudo = document.getElementById('laudoNumber').value.trim();
+  // Máscara para CNPJ
+    document.getElementById('cnpj').addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length > 14) value = value.substring(0, 14);
+      value = value.replace(/^(\d{2})(\d)/, '$1.$2');
+      value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+      value = value.replace(/\.(\d{3})(\d)/, '.$1/$2');
+      value = value.replace(/(\d{4})(\d)/, '$1-$2');
+      e.target.value = value;
+    });
 
-      if (!numeroLaudo) {
-        showError('Digite o número do laudo.');
+  // Máscara para WhatsApp
+  document.getElementById('whatsapp').addEventListener('input', function (e) {
+  let v = e.target.value.replace(/\D/g, '')
+  if (v.length > 11) v = v.slice(0, 11)
+
+  v = v.replace(/^(\d{2})(\d)/, '$1 $2')
+  v = v.replace(/^(\d{2}\s9\d{4})(\d{4})$/, '$1-$2')
+
+  e.target.value = v
+})
+
+
+  // Função para validar CNPJ
+  function validarCNPJ(cnpj) {
+    cnpj = cnpj.replace(/[^\d]+/g, '');
+    if (cnpj.length !== 14) return false;
+
+    let tamanho = cnpj.length - 2;
+    let numeros = cnpj.substring(0, tamanho);
+    let digitos = cnpj.substring(tamanho);
+    let soma = 0;
+    let pos = tamanho - 7;
+
+    for (let i = tamanho; i >= 1; i--) {
+      soma += numeros.charAt(tamanho - i) * pos--;
+      if (pos < 2) pos = 9;
+    }
+
+    let resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+    if (resultado !== parseInt(digitos.charAt(0))) return false;
+
+    tamanho = tamanho + 1;
+    numeros = cnpj.substring(0, tamanho);
+    soma = 0;
+    pos = tamanho - 7;
+
+    for (let i = tamanho; i >= 1; i--) {
+      soma += numeros.charAt(tamanho - i) * pos--;
+      if (pos < 2) pos = 9;
+    }
+
+    resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+    if (resultado !== parseInt(digitos.charAt(1))) return false;
+
+    return true;
+  }
+
+  // Função para validar e-mail
+  function validarEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  }
+
+  function validarWhatsApp(whatsapp) {
+    const re = /^\d{2}\s9\d{4}-\d{4}$/
+    if (!re.test(whatsapp)) {
+      showError('WhatsApp inválido. Formato esperado: DD 9XXXX-XXXX.')
+      return false
+    }
+    return true
+  }
+
+ function validarNome(nome) {
+  const re = /^[A-Za-zÀ-ÖØ-öø-\s]+$/;
+  return re.test(nome);
+}
+
+
+  // Função para mostrar erro
+  function showError(msg) {
+    document.getElementById('errorMessage').textContent = msg;
+    document.getElementById('errorMessage').style.display = 'block';
+  }
+
+  // Função para mostrar loading
+  function showLoading(show) {
+    document.getElementById('loading').style.display = show ? 'block' : 'none';
+    document.getElementById('errorMessage').style.display = 'none';
+  }
+
+  // Função para voltar à consulta
+  function voltarConsulta() {
+    document.getElementById('popupContainer').style.display = 'flex';
+    document.getElementById('certificateContainer').style.display = 'none';
+  }
+
+  // Evento de clique do botão Gerar Laudo
+  document.getElementById('generateBtn').addEventListener('click', function() {
+    const numeroLaudo = document.getElementById('laudoNumber').value.trim();
+    const nome = document.getElementById('nome').value.trim();
+    const cnpj = document.getElementById('cnpj').value.trim();
+    const whatsapp = document.getElementById('whatsapp').value.trim();
+    const email = document.getElementById('email').value.trim();
+
+    // Validar campos
+    if (!numeroLaudo) {
+      showError('Digite o número do laudo.');
+      return;
+    }
+
+    if (!nome) {
+      showError('Digite o nome.');
+      return;
+    }
+
+    if (!validarNome(nome)) {
+      showError('Nome não pode conter números ou caracteres especiais.');
+      return;
+    }
+
+    if (!cnpj) {
+      showError('Digite o CNPJ.');
+      return;
+    }
+
+    if (!validarCNPJ(cnpj)) {
+      showError('CNPJ inválido.');
+      return;
+    }
+
+    if (!whatsapp) {
+      showError('Digite o WhatsApp.');
+      return;
+    }
+
+    if (!validarWhatsApp(whatsapp)) {
+      showError('WhatsApp inválido. Formato esperado: DD 9XXXX-XXXX.');
+      return;
+    }
+
+    if (!email) {
+      showError('Digite o e-mail.');
+      return;
+    }
+
+    if (!validarEmail(email)) {
+      showError('E-mail inválido.');
+      return;
+    }
+
+    showLoading(true);
+
+    // Segurança: limpa script antigo
+    if (jsonpScript) {
+      jsonpScript.remove();
+      jsonpScript = null;
+    }
+
+    // Timeout de segurança
+    clearTimeout(timeoutRef);
+    timeoutRef = setTimeout(() => {
+      showLoading(false);
+      showError('Tempo limite ao consultar o laudo.');
+    }, 8000);
+
+    // Callback GLOBAL (obrigatório)
+    window.receberLaudo = function(result) {
+      clearTimeout(timeoutRef);
+      showLoading(false);
+
+      if (!result.success) {
+        showError(result.message);
         return;
       }
 
-      showLoading(true);
+      const data = result.data;
 
-      // Segurança: limpa script antigo
-      if (jsonpScript) {
-        jsonpScript.remove();
-        jsonpScript = null;
-      }
+      // Preencher informações do ensaio
+      document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
+      document.getElementById('productName').textContent = data.produto;
+      document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
+      document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
+      document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
+      document.getElementById('produto').textContent = data.produto;
+      document.getElementById('classe').textContent = data.classe;
 
-      // Timeout de segurança
+      // Preencher condições do ensaio
+      document.getElementById('temperatura').textContent = "23 ºC";
+      document.getElementById('tempoEnsaio').textContent = "1 minuto";
+      document.getElementById('umidade').textContent = "70 %";
+
+      // Preencher equipamentos utilizados
+      const equipamentos = [
+        { nome: "Kilovoltímetro", codigo: "CEL-HP-01", certifCalibracao: data.certifCalibracao, validade: data.validade },
+        { nome: "Miliamperímetro", codigo: "CEL-HP-01", certifCalibracao: data.certifCalibracao, validade: data.validade },
+        { nome: "Cronômetro", codigo: "CEL-HP-01", certifCalibracao: data.certifCalibracao, validade: data.validade },
+        { nome: "Termohigrômetro", codigo: "CEL-TH-02", certifCalibracao: "1803660", validade: data.validade },
+        { nome: "Trena", codigo: "PAN-TR-05", certifCalibracao: "PAN-TR-105", validade: data.validade }
+      ];
+
+      const equipmentTableBody = document.getElementById('equipmentTableBody');
+      equipmentTableBody.innerHTML = equipamentos
+        .map(equipamento =>
+          `<tr>
+            <td>${equipamento.nome}</td>
+            <td>${equipamento.codigo}</td>
+            <td>${equipamento.certifCalibracao}</td>
+            <td>${equipamento.validade}</td>
+          </tr>`
+        )
+        .join('');
+
+      // Preencher classe e Kv aplicado na tabela estática
+      document.getElementById('classeDinamica').textContent = data.classe;
+      document.getElementById('kvAplicadoDinamico').textContent = data.kvAplicado;
+
+      // Exibir o laudo
+      document.getElementById('certificateContainer').style.display = 'block';
+      document.getElementById('popupContainer').style.display = 'none';
+    };
+
+    jsonpScript = document.createElement('script');
+    jsonpScript.src =
+      API_URL +
+      '?action=buscarLaudoPorNumero' +
+      '&numeroLaudo=' + encodeURIComponent(numeroLaudo) +
+      '&nome=' + encodeURIComponent(nome) +
+      '&cnpj=' + encodeURIComponent(cnpj) +
+      '&whatsapp=' + encodeURIComponent(whatsapp) +
+      '&email=' + encodeURIComponent(email) +
+      '&callback=receberLaudo';
+
+    jsonpScript.onerror = function() {
       clearTimeout(timeoutRef);
-      timeoutRef = setTimeout(() => {
-        showLoading(false);
-        showError('Tempo limite ao consultar o laudo.');
-      }, 8000);
+      showLoading(false);
+      showError('Erro ao carregar o laudo.');
+    };
 
-      // Callback GLOBAL (obrigatório)
-      window.receberLaudo = function(result) {
-        clearTimeout(timeoutRef);
-        showLoading(false);
+    document.body.appendChild(jsonpScript);
+  });
 
-        if (!result.success) {
-          showError(result.message);
-          return;
-        }
+    //Block Btn Right
 
-        const data = result.data;
-
-        // Preencher informações do ensaio
-        document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
-        document.getElementById('productName').textContent = data.produto;
-        document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
-        document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
-        document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
-        document.getElementById('produto').textContent = data.produto;
-        document.getElementById('classe').textContent = data.classe;
-
-        // Preencher condições do ensaio
-        document.getElementById('temperatura').textContent = "23 ºC";
-        document.getElementById('tempoEnsaio').textContent = "1 minuto";
-        document.getElementById('umidade').textContent = "70 %";
-
-        // Preencher equipamentos utilizados
-        const equipamentos = [
-          { nome: "Kilovoltímetro", codigo: "CEL-HP-01", certifCalibracao: data.certifCalibracao, validade: data.validade },
-          { nome: "Miliamperímetro", codigo: "CEL-HP-01", certifCalibracao: data.certifCalibracao, validade: data.validade },
-          { nome: "Cronômetro", codigo: "CEL-HP-01", certifCalibracao: data.certifCalibracao, validade: data.validade },
-          { nome: "Termohigrômetro", codigo: "CEL-TH-02", certifCalibracao: "1803660", validade: data.validade },
-          { nome: "Trena", codigo: "PAN-TR-05", certifCalibracao: "PAN-TR-105", validade: data.validade }
-        ];
-
-        const equipmentTableBody = document.getElementById('equipmentTableBody');
-        equipmentTableBody.innerHTML = equipamentos
-          .map(equipamento =>
-            `<tr>
-              <td>${equipamento.nome}</td>
-              <td>${equipamento.codigo}</td>
-              <td>${equipamento.certifCalibracao}</td>
-              <td>${equipamento.validade}</td>
-            </tr>`
-          )
-          .join('');
-
-        // Preencher resultados dos ensaios
-        const resultados = [
-          { classe: data.classe, kvAplicado: data.kvAplicado, resultado: "AP" }
-        ];
-
-        const dataTableHeader = document.getElementById('dataTableHeader');
-        dataTableHeader.innerHTML = `
-          <tr>
-            <th>Classe</th>
-            <th>Kv Aplicado</th>
-            <th>Resultado</th>
-          </tr>
-        `;
-
-        const dataTableBody = document.getElementById('dataTableBody');
-        dataTableBody.innerHTML = resultados
-          .map(resultado =>
-            `<tr>
-              <td>${resultado.classe}</td>
-              <td>${resultado.kvAplicado}</td>
-              <td>${resultado.resultado}</td>
-            </tr>`
-          )
-          .join('');
-
-        // Exibir o laudo
-        document.getElementById('certificateContainer').style.display = 'block';
-        document.getElementById('popupContainer').style.display = 'none';
-      };
-
-      jsonpScript = document.createElement('script');
-      jsonpScript.src =
-        API_URL +
-        '?action=buscarLaudoPorNumero' +
-        '&numeroLaudo=' + encodeURIComponent(numeroLaudo) +
-        '&callback=receberLaudo';
-
-      jsonpScript.onerror = function() {
-        clearTimeout(timeoutRef);
-        showLoading(false);
-        showError('Erro ao carregar o laudo.');
-      };
-
-      document.body.appendChild(jsonpScript);
-    });
-
-    function showLoading(show) {
-      document.getElementById('loading').style.display = show ? 'block' : 'none';
-      document.getElementById('errorMessage').style.display = 'none';
-    }
-
-    function showError(msg) {
-      document.getElementById('errorMessage').textContent = msg;
-      document.getElementById('errorMessage').style.display = 'block';
-    }
-
-    function voltarConsulta() {
-      document.getElementById('popupContainer').style.display = 'flex';
-      document.getElementById('certificateContainer').style.display = 'none';
-    }
+   
   </script>
 </body>
 </html>
