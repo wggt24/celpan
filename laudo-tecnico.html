@@ -320,9 +320,8 @@
           </div>
           <div class="input-group">
             <label for="whatsapp">WhatsApp</label>
-            <input type="text" id="whatsapp" placeholder="XX XXXXX-XXXX" autocomplete="off">
+            <input type="text" id="whatsapp" placeholder="11 9XXXX-XXXX" autocomplete="off">
           </div>
-
 
           <div class="input-group">
             <label for="email">E-mail</label>
@@ -512,23 +511,20 @@
 
   // Máscara para WhatsApp
   document// Máscara para WhatsApp
-       // Máscara para WhatsApp
-    document.getElementById('whatsapp').addEventListener('input', function(e) {
-      let value = e.target.value.replace(/\D/g, '');
-      if (value.length > 10) value = value.substring(0, 10); // 10 dígitos para (XX)XXXXX-XXXX
-    
-      // Aplica a máscara: (XX)XXXXX-XXXX
-      if (value.length > 2) {
-        value = '(' + value.substring(0, 2) + ') ' + value.substring(2);
-      }
-      if (value.length > 8) {
-        value = value.substring(0, 8) + '-' + value.substring(8, 12);
-      }
-    
-      e.target.value = value;
-    });
-
-
+      document.getElementById('whatsapp').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 11) value = value.substring(0, 11); // 11 dígitos para XX XXXXX-XXXX
+      
+        // Aplica a máscara: XX XXXXX-XXXX
+        if (value.length > 2) {
+          value = value.substring(0, 2) + ' ' + value.substring(2);
+        }
+        if (value.length > 8) {
+          value = value.substring(0, 8) + '-' + value.substring(8, 12);
+        }
+      
+        e.target.value = value;
+      });
 
   // Função para validar CNPJ
   function validarCNPJ(cnpj) {
@@ -583,11 +579,12 @@
   }
 
 
-  // Função para validar Nome (não aceita números)
-  function validarNome(nome) {
-    const re = /^[A-Za-zÀ-ÖØ-öø-\s]+$/;
-    return re.test(nome);
-  }
+  // Função para validar WhatsApp
+    function validarWhatsApp(whatsapp) {
+      const re = /^\d{2} \d{5}-\d{4}$/;
+      return re.test(whatsapp);
+    }
+
 
   // Função para mostrar erro
   function showError(msg) {
