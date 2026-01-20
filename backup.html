@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -157,7 +158,7 @@
       border: 1px solid var(--borda-padrao);
     }
 
-    /* TÍTULOS DE SEÇÃO → vermelho escuro */
+    /* Títulos de seção */
     .section-title {
       background: linear-gradient(135deg, var(--vermelho-secundario), var(--vermelho-principal));
       color: #ffffff;
@@ -337,7 +338,7 @@
     </div>
 
     <!-- Certificado de Laudo Técnico -->
-    <div class="certificate-container" id="certificateContainer">
+    <div class="certificate-container" id="certificateContainer" style="display: none;">
       <div class="certificate-header">
         <div class="logo-container">
           <img id="companyLogo" src="https://www.celpan.com.br/wp-content/uploads/2021/12/logo.png" alt="Logo Celpan">
@@ -346,7 +347,7 @@
         <div class="certificate-subtitle">
           EPI / EPC: <span id="productName"></span>
         </div>
-        <div class="certificate-number" style="display: none;">
+        <div class="certificate-number">
           NÚM: <span id="numeroLaudo"></span>
         </div>
       </div>
@@ -472,94 +473,142 @@
     </div>
   </div>
 
-<script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbyDfe74-BDLwpV8FZEsW7DWlu2VJs3N9d12JGMIq89_B2uKnffL2l4tZ8gwzsmZTtAYCw/exec';
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyDfe74-BDLwpV8FZEsW7DWlu2VJs3N9d12JGMIq89_B2uKnffL2l4tZ8gwzsmZTtAYCw/exec';
 
-let jsonpScript = null;
-let timeoutRef = null;
+    let jsonpScript = null;
+    let timeoutRef = null;
 
-document.getElementById('generateBtn').addEventListener('click', function () {
-  const numeroLaudo = document.getElementById('laudoNumber').value.trim();
+    document.getElementById('generateBtn').addEventListener('click', function() {
+      const numeroLaudo = document.getElementById('laudoNumber').value.trim();
 
-  if (!numeroLaudo) {
-    showError('Digite o número do laudo.');
-    return;
-  }
+      if (!numeroLaudo) {
+        showError('Digite o número do laudo.');
+        return;
+      }
 
-  showLoading(true);
+      showLoading(true);
 
-  // segurança: limpa script antigo
-  if (jsonpScript) {
-    jsonpScript.remove();
-    jsonpScript = null;
-  }
+      // Segurança: limpa script antigo
+      if (jsonpScript) {
+        jsonpScript.remove();
+        jsonpScript = null;
+      }
 
-  // timeout de segurança
-  clearTimeout(timeoutRef);
-  timeoutRef = setTimeout(() => {
-    showLoading(false);
-    showError('Tempo limite ao consultar o laudo.');
-  }, 8000);
+      // Timeout de segurança
+      clearTimeout(timeoutRef);
+      timeoutRef = setTimeout(() => {
+        showLoading(false);
+        showError('Tempo limite ao consultar o laudo.');
+      }, 8000);
 
-  // callback GLOBAL (obrigatório)
-  window.receberLaudo = function (result) {
-    clearTimeout(timeoutRef);
-    showLoading(false);
+      // Callback GLOBAL (obrigatório)
+      window.receberLaudo = function(result) {
+        clearTimeout(timeoutRef);
+        showLoading(false);
 
-    if (!result.success) {
-      showError(result.message);
-      return;
+        if (!result.success) {
+          showError(result.message);
+          return;
+        }
+
+        const data = result.data;
+
+        // Preencher informações do ensaio
+        document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
+        document.getElementById('productName').textContent = data.produto;
+        document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
+        document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
+        document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
+        document.getElementById('produto').textContent = data.produto;
+        document.getElementById('classe').textContent = data.classe;
+
+        // Preencher condições do ensaio
+        document.getElementById('temperatura').textContent = "23 ºC";
+        document.getElementById('tempoEnsaio').textContent = "1 minuto";
+        document.getElementById('umidade').textContent = "70 %";
+
+        // Preencher equipamentos utilizados
+        const equipamentos = [
+          { nome: "Kilovoltímetro", codigo: "CEL-HP-01", certifCalibracao: data.certifCalibracao, validade: data.validade },
+          { nome: "Miliamperímetro", codigo: "CEL-HP-01", certifCalibracao: data.certifCalibracao, validade: data.validade },
+          { nome: "Cronômetro", codigo: "CEL-HP-01", certifCalibracao: data.certifCalibracao, validade: data.validade },
+          { nome: "Termohigrômetro", codigo: "CEL-TH-02", certifCalibracao: "1803660", validade: data.validade },
+          { nome: "Trena", codigo: "PAN-TR-05", certifCalibracao: "PAN-TR-105", validade: data.validade }
+        ];
+
+        const equipmentTableBody = document.getElementById('equipmentTableBody');
+        equipmentTableBody.innerHTML = equipamentos
+          .map(equipamento =>
+            `<tr>
+              <td>${equipamento.nome}</td>
+              <td>${equipamento.codigo}</td>
+              <td>${equipamento.certifCalibracao}</td>
+              <td>${equipamento.validade}</td>
+            </tr>`
+          )
+          .join('');
+
+        // Preencher resultados dos ensaios
+        const resultados = [
+          { classe: data.classe, kvAplicado: data.kvAplicado, resultado: "AP" }
+        ];
+
+        const dataTableHeader = document.getElementById('dataTableHeader');
+        dataTableHeader.innerHTML = `
+          <tr>
+            <th>Classe</th>
+            <th>Kv Aplicado</th>
+            <th>Resultado</th>
+          </tr>
+        `;
+
+        const dataTableBody = document.getElementById('dataTableBody');
+        dataTableBody.innerHTML = resultados
+          .map(resultado =>
+            `<tr>
+              <td>${resultado.classe}</td>
+              <td>${resultado.kvAplicado}</td>
+              <td>${resultado.resultado}</td>
+            </tr>`
+          )
+          .join('');
+
+        // Exibir o laudo
+        document.getElementById('certificateContainer').style.display = 'block';
+        document.getElementById('popupContainer').style.display = 'none';
+      };
+
+      jsonpScript = document.createElement('script');
+      jsonpScript.src =
+        API_URL +
+        '?action=buscarLaudoPorNumero' +
+        '&numeroLaudo=' + encodeURIComponent(numeroLaudo) +
+        '&callback=receberLaudo';
+
+      jsonpScript.onerror = function() {
+        clearTimeout(timeoutRef);
+        showLoading(false);
+        showError('Erro ao carregar o laudo.');
+      };
+
+      document.body.appendChild(jsonpScript);
+    });
+
+    function showLoading(show) {
+      document.getElementById('loading').style.display = show ? 'block' : 'none';
+      document.getElementById('errorMessage').style.display = 'none';
     }
 
-    const data = result.data;
+    function showError(msg) {
+      document.getElementById('errorMessage').textContent = msg;
+      document.getElementById('errorMessage').style.display = 'block';
+    }
 
-    document.getElementById('numeroLaudo').textContent = data.rastreabilidade;
-    document.getElementById('productName').textContent = data.produto;
-    document.getElementById('rastreabilidade').textContent = data.rastreabilidade;
-    document.getElementById('mesEnsaio').textContent = data.mesEnsaio;
-    document.getElementById('proximoEnsaio').textContent = data.proximoEnsaio;
-    document.getElementById('produto').textContent = data.produto;
-    document.getElementById('classe').textContent = data.classe;
-
-    document.getElementById('certificateContainer').style.display = 'block';
-    document.getElementById('popupContainer').style.display = 'none';
-  };
-
-  jsonpScript = document.createElement('script');
-  jsonpScript.src =
-    API_URL +
-    '?action=buscarLaudoPorNumero' +
-    '&numeroLaudo=' + encodeURIComponent(numeroLaudo) +
-    '&callback=receberLaudo';
-
-  jsonpScript.onerror = function () {
-    clearTimeout(timeoutRef);
-    showLoading(false);
-    showError('Erro ao carregar o laudo.');
-  };
-
-  document.body.appendChild(jsonpScript);
-});
-
-function showLoading(show) {
-  document.getElementById('loading').style.display = show ? 'block' : 'none';
-  document.getElementById('errorMessage').style.display = 'none';
-}
-
-function showError(msg) {
-  document.getElementById('errorMessage').textContent = msg;
-  document.getElementById('errorMessage').style.display = 'block';
-}
-</script>
-
+    function voltarConsulta() {
+      document.getElementById('popupContainer').style.display = 'flex';
+      document.getElementById('certificateContainer').style.display = 'none';
+    }
+  </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
